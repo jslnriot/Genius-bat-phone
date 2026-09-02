@@ -1,2 +1,91 @@
-# Genius-bat-phone
-Take-Home Full-Stack Interview for Genius. AI-Assisted Phone Calling System ("Bat Phone")
+# Bat Phone
+
+Take-home full-stack project for Genius: an AI-assisted employee calling tool.
+
+## Environment variables
+
+Bat Phone requires these variables:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_PHONE_NUMBER
+```
+
+Copy `.env.example` when setting up a new environment, but never commit populated environment files or credentials. Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. `SUPABASE_SECRET_KEY` and all `TWILIO_*` values are server-only and must only be configured in trusted local, Codespaces, and Vercel environments.
+
+## Local development
+
+Use Node.js 24.10.0, as specified in `.nvmrc`.
+
+```bash
+nvm use
+cp .env.example .env.local
+npm ci
+npm run dev
+```
+
+Add the required values to `.env.local`. The app runs at [http://localhost:3000](http://localhost:3000).
+
+## Vercel
+
+In the Vercel project settings, add all variables listed in `.env.example` under Environment Variables. Configure them for every Vercel environment that should run the app, then redeploy after changing a value.
+
+Production is hosted at [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app).
+
+## GitHub Codespaces
+
+Add all variables listed in `.env.example` as GitHub Codespaces repository secrets. New codespaces receive them as environment variables.
+
+The dev container installs Node.js 24.10.0, runs `npm ci`, and forwards port 3000 automatically. Start the app with:
+
+```bash
+npm run dev
+```
+
+If an existing codespace predates the dev-container configuration, rebuild its container.
+
+## Supabase Auth URL configuration
+
+In Supabase Dashboard → Authentication → URL Configuration, use:
+
+Site URL:
+
+```text
+https://genius-bat-phone.vercel.app
+```
+
+Redirect URLs:
+
+```text
+http://localhost:3000/auth/callback
+https://genius-bat-phone.vercel.app/auth/callback
+https://*-3000.app.github.dev/auth/callback
+```
+
+The application intentionally derives `/auth/callback` from the current browser/request origin. This supports localhost, production, and dynamically named Codespaces without hardcoded application hostnames. Each resulting URL must remain in Supabase's redirect allowlist.
+
+Google Cloud's OAuth Authorized Redirect URI is different: it continues to point to the Supabase Auth callback, typically `https://<project-ref>.supabase.co/auth/v1/callback`. It does not change between localhost, Vercel, and Codespaces.
+
+## Twilio Voice webhook
+
+After deploying to Vercel, configure the Bat Phone number's **A call comes in** webhook as:
+
+```text
+POST https://genius-bat-phone.vercel.app/api/twilio/incoming
+```
+
+The application returns TwiML that directs Twilio to these signed POST callbacks; they do not need separate Twilio Console configuration:
+
+```text
+https://genius-bat-phone.vercel.app/api/twilio/resolve-contact
+https://genius-bat-phone.vercel.app/api/twilio/dial-complete
+https://genius-bat-phone.vercel.app/api/twilio/recording
+```
+
+Every Twilio route validates `X-Twilio-Signature` against the exact public request URL and all form parameters. Local webhook testing therefore requires an HTTPS tunnel whose URL is configured in Twilio; requests sent directly to localhost will not have a valid production signature.
+
+Phase 3 bridges the inbound caller to a deterministically matched contact with `<Dial>`, creates the call record before dialing, and records both call legs on separate channels. Transcription and transcript email delivery are intentionally deferred.
