@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #16324F;
+  --color-action: #2563EB;
+  --color-background: #F7F9FC;
+  --color-border: #E2E8F0;
+  --color-secondary-text: #64748B;
+  --color-muted-background: #F1F5F9;
+  --color-success: #15803D;
+  --color-warning: #B45309;
+  --color-error: #DC2626;
+
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-card: 12px;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  font-family: var(--font-geist-sans), "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
