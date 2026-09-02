@@ -1,4 +1,10 @@
+import { ResendCallEmailSender } from "@/lib/email/call-transcript";
+import {
+  submitRecordingForTranscription,
+  TwilioBatchTranscriptionClient,
+} from "@/lib/twilio/batch-transcription";
 import { logTwilioEvent } from "@/lib/twilio/logging";
+import { SupabasePhase4Repository } from "@/lib/twilio/phase4-repository";
 import { validateTwilioRequest } from "@/lib/twilio/request-validation";
 import { SupabaseTelephonyRepository } from "@/lib/twilio/telephony-repository";
 import { invalidSignatureResponse } from "@/lib/twilio/voice-flow";
@@ -53,7 +59,8 @@ export async function POST(request: Request) {
     const recordingDuration = parseDuration(
       validated.params.get("RecordingDuration"),
     );
-    await new SupabaseTelephonyRepository().updateRecording(
+    const telephonyRepository = new SupabaseTelephonyRepository();
+    await telephonyRepository.updateRecording(
       callSid,
       recordingSid,
       recordingUrl,
@@ -64,6 +71,24 @@ export async function POST(request: Request) {
       recordingDuration,
       recordingSid,
     });
+
+    const phase4Repository = new SupabasePhase4Repository();
+    const call =
+      await phase4Repository.findCallByRecordingSid(recordingSid);
+    if (!call) {
+      logTwilioEvent("error", "twilio.recording_call_not_found", {
+        callSid,
+        recordingSid,
+      });
+      return new Response(null, { status: 200 });
+    }
+
+    await submitRecordingForTranscription(
+      call,
+      phase4Repository,
+      new TwilioBatchTranscriptionClient(),
+      new ResendCallEmailSender(),
+    );
 
     return new Response(null, { status: 200 });
   } catch (error) {

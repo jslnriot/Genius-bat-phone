@@ -13,6 +13,9 @@ SUPABASE_SECRET_KEY
 TWILIO_ACCOUNT_SID
 TWILIO_AUTH_TOKEN
 TWILIO_PHONE_NUMBER
+TWILIO_TRANSCRIPTION_CONFIGURATION_ID
+RESEND_API_KEY
+RESEND_FROM_EMAIL
 ```
 
 Copy `.env.example` when setting up a new environment, but never commit populated environment files or credentials. Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. `SUPABASE_SECRET_KEY` and all `TWILIO_*` values are server-only and must only be configured in trusted local, Codespaces, and Vercel environments.
@@ -78,7 +81,7 @@ After deploying to Vercel, configure the Bat Phone number's **A call comes in** 
 POST https://genius-bat-phone.vercel.app/api/twilio/incoming
 ```
 
-The application returns TwiML that directs Twilio to these signed POST callbacks; they do not need separate Twilio Console configuration:
+The application returns TwiML that directs Twilio to these signed form POST callbacks; they do not need separate Twilio Console configuration:
 
 ```text
 https://genius-bat-phone.vercel.app/api/twilio/resolve-contact
@@ -86,6 +89,14 @@ https://genius-bat-phone.vercel.app/api/twilio/dial-complete
 https://genius-bat-phone.vercel.app/api/twilio/recording
 ```
 
-Every Twilio route validates `X-Twilio-Signature` against the exact public request URL and all form parameters. Local webhook testing therefore requires an HTTPS tunnel whose URL is configured in Twilio; requests sent directly to localhost will not have a valid production signature.
+Every Twilio route validates `X-Twilio-Signature` against the exact public request URL. Form callbacks validate all form parameters. The Batch Transcription JSON callback validates the unmodified request body and Twilio's `bodySHA256` query parameter. Local webhook testing therefore requires an HTTPS tunnel whose URL is configured in Twilio; requests sent directly to localhost will not have a valid production signature.
 
-Phase 3 bridges the inbound caller to a deterministically matched contact with `<Dial>`, creates the call record before dialing, and records both call legs on separate channels. Transcription and transcript email delivery are intentionally deferred.
+Phase 3 bridges the inbound caller to a deterministically matched contact with `<Dial>`, creates the call record before dialing, and records both call legs on separate channels.
+
+For Phase 4, create a Twilio Batch Transcription Configuration manually with its status callback set to:
+
+```text
+POST https://genius-bat-phone.vercel.app/api/twilio/transcription
+```
+
+Set `TWILIO_TRANSCRIPTION_CONFIGURATION_ID` to the returned ID (a string beginning with `voice_transcriptionconfiguration_`). The application submits each completed Twilio Recording SID to Twilio; it does not call Deepgram directly. Configure `RESEND_FROM_EMAIL` with a sender on a verified Resend domain.

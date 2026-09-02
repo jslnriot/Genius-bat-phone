@@ -6,7 +6,11 @@ export type ValidatedTwilioRequest = {
   params: URLSearchParams;
 };
 
-function externallyVisibleUrl(request: Request) {
+export type ValidatedTwilioJsonRequest = {
+  rawBody: string;
+};
+
+export function externallyVisibleUrl(request: Request) {
   const requestUrl = new URL(request.url);
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto");
@@ -56,4 +60,26 @@ export async function validateTwilioRequest(
   );
 
   return isValid ? { params } : null;
+}
+
+export async function validateTwilioJsonRequest(
+  request: Request,
+): Promise<ValidatedTwilioJsonRequest | null> {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    throw new Error("TWILIO_AUTH_TOKEN is not configured.");
+  }
+
+  const signature = request.headers.get("x-twilio-signature");
+  if (!signature) return null;
+
+  const rawBody = await request.text();
+  const isValid = twilio.validateRequestWithBody(
+    authToken,
+    signature,
+    externallyVisibleUrl(request),
+    rawBody,
+  );
+
+  return isValid ? { rawBody } : null;
 }
