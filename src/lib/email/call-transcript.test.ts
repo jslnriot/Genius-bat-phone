@@ -1,4 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import {
   buildCallEmail,
   sendCallEmail,
@@ -45,6 +52,15 @@ function repository(): Phase4Repository {
   };
 }
 
+beforeEach(() => {
+  process.env.VERCEL_PROJECT_PRODUCTION_URL =
+    "genius-bat-phone.vercel.app";
+});
+
+afterEach(() => {
+  delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+});
+
 describe("call transcript email", () => {
   it("contains the required call metadata, transcript, and recording link", () => {
     const email = buildCallEmail(
@@ -63,7 +79,12 @@ describe("call transcript email", () => {
     expect(email.html).toContain("Call Start Time:");
     expect(email.html).toContain("Call Duration:");
     expect(email.html).toContain("Caller:\nHello.");
-    expect(email.html).toContain(call.recording_url);
+    expect(email.html).toContain(
+      "https://genius-bat-phone.vercel.app/api/calls/call-1/recording",
+    );
+    expect(email.html).not.toContain(
+      "https://api.twilio.com/recordings/RE111",
+    );
   });
 
   it("sends only to the initiating user and never to the destination", async () => {

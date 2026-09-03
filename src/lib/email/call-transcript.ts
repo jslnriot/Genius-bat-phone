@@ -1,6 +1,7 @@
 import "server-only";
 
 import { Resend } from "resend";
+import { callRecordingUrl } from "@/lib/application-url";
 import { logTwilioEvent } from "@/lib/twilio/logging";
 import type {
   Phase4Call,
@@ -81,7 +82,7 @@ export function buildCallEmail(
   transcript: string | null,
 ) {
   const contactName = call.contact_name_snapshot ?? "Unknown contact";
-  const recordingUrl = call.recording_url ?? "";
+  const recordingUrl = call.recording_sid ? callRecordingUrl(call.id) : null;
   const transcriptSection = transcript
     ? `<h2>Transcript</h2><div style="white-space: pre-wrap">${escapeHtml(transcript)}</div>`
     : `<h2>Transcript</h2><p>Transcript unavailable.</p><p>The call recording is still available here:</p>`;
