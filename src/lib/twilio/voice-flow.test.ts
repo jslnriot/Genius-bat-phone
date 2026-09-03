@@ -39,6 +39,7 @@ describe("Twilio voice flow", () => {
   });
 
   it("rejects an unknown caller with valid TwiML", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => undefined);
     const xml = await incomingCallTwiml(
       "+14165550100",
       repository({ findProfileByPhone: async () => null }),
@@ -50,6 +51,50 @@ describe("Twilio voice flow", () => {
     );
     expect(xml).toContain("<Hangup");
     expect(xml).not.toContain("<Gather");
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('"event":"twilio.unknown_caller_rejected"'),
+    );
+    expect(log.mock.calls[0][0]).not.toContain("+14165550100");
+    log.mockRestore();
+  });
+
+  it("retries an unresolved contact once, retains DTMF, then exits", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const firstAttempt = await resolveContactTwiml(
+      {
+        attempt: 0,
+        callSid: "CA11111111111111111111111111111111",
+        from: "+14165550100",
+        speechResult: "Not A Contact",
+        twilioPhoneNumber: "+12892782417",
+      },
+      repository(),
+    );
+    const finalAttempt = await resolveContactTwiml(
+      {
+        attempt: 1,
+        callSid: "CA11111111111111111111111111111111",
+        from: "+14165550100",
+        speechResult: "Still Not A Contact",
+        twilioPhoneNumber: "+12892782417",
+      },
+      repository(),
+    );
+
+    expect(firstAttempt).toContain(
+      'action="/api/twilio/resolve-contact?attempt=1"',
+    );
+    expect(firstAttempt).toContain('input="speech dtmf"');
+    expect(finalAttempt).toContain("I could not resolve that contact.");
+    expect(finalAttempt).toContain("<Hangup");
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('"outcome":"retry"'),
+    );
+    expect(log).toHaveBeenCalledWith(
+      expect.stringContaining('"outcome":"hangup"'),
+    );
+    expect(log.mock.calls.flat().join(" ")).not.toContain("Not A Contact");
+    log.mockRestore();
   });
 
   it("creates the call record and returns the configured Dial response", async () => {

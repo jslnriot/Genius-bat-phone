@@ -80,6 +80,10 @@ describe("call transcript email", () => {
     expect(email.html).toContain("Call Duration:");
     expect(email.html).toContain("Caller:\nHello.");
     expect(email.html).toContain(
+      "https://genius-bat-phone.vercel.app/calls/call-1",
+    );
+    expect(email.html).toContain("View call and recording");
+    expect(email.html).not.toContain(
       "https://genius-bat-phone.vercel.app/api/calls/call-1/recording",
     );
     expect(email.html).not.toContain(

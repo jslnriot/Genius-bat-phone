@@ -1,7 +1,7 @@
 import "server-only";
 
 import { Resend } from "resend";
-import { callRecordingUrl } from "@/lib/application-url";
+import { callDetailUrl } from "@/lib/application-url";
 import { logTwilioEvent } from "@/lib/twilio/logging";
 import type {
   Phase4Call,
@@ -82,25 +82,27 @@ export function buildCallEmail(
   transcript: string | null,
 ) {
   const contactName = call.contact_name_snapshot ?? "Unknown contact";
-  const recordingUrl = call.recording_sid ? callRecordingUrl(call.id) : null;
+  const detailUrl = callDetailUrl(call.id);
   const transcriptSection = transcript
-    ? `<h2>Transcript</h2><div style="white-space: pre-wrap">${escapeHtml(transcript)}</div>`
-    : `<h2>Transcript</h2><p>Transcript unavailable.</p><p>The call recording is still available here:</p>`;
+    ? `<h2 style="color:#16324F;font-size:20px;line-height:28px;margin:32px 0 12px">Transcript</h2><div style="color:#16324F;font-size:16px;line-height:24px;white-space:pre-wrap">${escapeHtml(transcript)}</div>`
+    : `<h2 style="color:#16324F;font-size:20px;line-height:28px;margin:32px 0 12px">Transcript</h2><p style="color:#64748B;font-size:16px;line-height:24px;margin:0">Transcript unavailable. The call recording may still be available.</p>`;
 
   return {
     subject: `Bat Phone — Call Transcript: ${contactName}`,
     html: [
-      "<h1>Call Transcript</h1>",
-      `<p><strong>Caller:</strong> ${escapeHtml(recipient)}<br>`,
+      '<div style="background:#F7F9FC;padding:24px 12px">',
+      '<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;font-family:Arial,sans-serif;margin:0 auto;max-width:560px;padding:24px">',
+      '<h1 style="color:#16324F;font-size:28px;line-height:34px;margin:0 0 24px">Call Transcript</h1>',
+      `<p style="color:#16324F;font-size:16px;line-height:26px;margin:0"><strong>Caller:</strong> ${escapeHtml(recipient)}<br>`,
       `<strong>Destination:</strong> ${escapeHtml(contactName)}<br>`,
       `<strong>Phone Number:</strong> ${escapeHtml(call.destination_number ?? "Unavailable")}<br>`,
       `<strong>Call Start Time:</strong> ${escapeHtml(formatStartTime(call.start_time))}<br>`,
       `<strong>Call Duration:</strong> ${escapeHtml(formatDuration(call.recording_duration ?? call.duration))}</p>`,
       transcriptSection,
-      "<h2>Recording</h2>",
-      recordingUrl
-        ? `<p><a href="${escapeHtml(recordingUrl)}">Listen to the call recording</a></p>`
-        : "<p>Recording unavailable.</p>",
+      '<h2 style="color:#16324F;font-size:20px;line-height:28px;margin:32px 0 12px">Recording / View Call</h2>',
+      `<p style="font-size:16px;line-height:24px;margin:0"><a href="${escapeHtml(detailUrl)}" style="color:#2563EB;font-weight:600">View call and recording</a></p>`,
+      "</div>",
+      "</div>",
     ].join(""),
   };
 }

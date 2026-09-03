@@ -11,3 +11,7 @@ export function applicationUrl(path: string) {
 export function callRecordingUrl(callId: string) {
   return applicationUrl(`/api/calls/${encodeURIComponent(callId)}/recording`);
 }
+
+export function callDetailUrl(callId: string) {
+  return applicationUrl(`/calls/${encodeURIComponent(callId)}`);
+}

@@ -1,5 +1,6 @@
 import twilio from "twilio";
 import { matchContactByName } from "@/lib/twilio/contact-matching";
+import { logTwilioEvent } from "@/lib/twilio/logging";
 import type {
   DialableCall,
   TelephonyRepository,
@@ -69,6 +70,7 @@ export async function incomingCallTwiml(
 ) {
   const profile = await repository.findProfileByPhone(from);
   if (!profile) {
+    logTwilioEvent("info", "twilio.unknown_caller_rejected");
     return finishWithMessage(
       "This phone number is not registered with Bat Phone.",
     );
@@ -124,6 +126,9 @@ export async function resolveContactTwiml(
 ) {
   const profile = await repository.findProfileByPhone(input.from);
   if (!profile) {
+    logTwilioEvent("info", "twilio.unknown_caller_rejected", {
+      callSid: input.callSid,
+    });
     return finishWithMessage(
       "This phone number is not registered with Bat Phone.",
     );
@@ -152,6 +157,11 @@ export async function resolveContactTwiml(
   }
 
   if (!contact) {
+    logTwilioEvent("info", "twilio.contact_unresolved", {
+      attempt: input.attempt,
+      callSid: input.callSid,
+      outcome: input.attempt === 0 ? "retry" : "hangup",
+    });
     return input.attempt === 0
       ? gatherForContacts(contacts, 1)
       : finishWithMessage(

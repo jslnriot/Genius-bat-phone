@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
-import { Phone } from "lucide-react";
+import { CallHistory } from "@/components/calls/call-history";
+import type { CallRecord } from "@/lib/calls";
 import { createClient } from "@/utils/supabase/server";
+
+const CALL_HISTORY_SELECT =
+  "id, contact_name_snapshot, destination_number, status, start_time, duration, recording_sid, recording_duration, transcript, transcription_status";
 
 export default async function CallsPage() {
   const supabase = await createClient();
@@ -10,6 +14,21 @@ export default async function CallsPage() {
 
   if (!user) {
     redirect("/account");
+  }
+
+  const { data, error } = await supabase
+    .from("calls")
+    .select(CALL_HISTORY_SELECT)
+    .eq("user_id", user.id)
+    .order("start_time", { ascending: false, nullsFirst: false });
+
+  if (error) {
+    console.error(
+      JSON.stringify({
+        event: "calls.history_lookup_failed",
+        userId: user.id,
+      }),
+    );
   }
 
   return (
@@ -23,19 +42,13 @@ export default async function CallsPage() {
         </p>
       </header>
 
-      <div className="flex flex-col items-center justify-center gap-4 py-16">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-muted-background)]">
-          <Phone size={32} className="text-[var(--color-secondary-text)]" />
-        </div>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <p className="text-base font-medium text-[var(--color-primary)]">
-            No calls yet
-          </p>
-          <p className="text-sm text-[var(--color-secondary-text)]">
-            Your call history will appear here.
-          </p>
-        </div>
-      </div>
+      {error ? (
+        <p className="py-12 text-center text-base text-[var(--color-secondary-text)]">
+          Call history is temporarily unavailable.
+        </p>
+      ) : (
+        <CallHistory calls={(data ?? []) as CallRecord[]} />
+      )}
     </div>
   );
 }
