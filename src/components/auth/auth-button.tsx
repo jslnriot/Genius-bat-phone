@@ -56,7 +56,11 @@ export function AuthButton({ mode }: AuthButtonProps) {
         onClick={handleClick}
         disabled={isPending}
       >
-        {mode === "sign-in" ? <Mail size={20} /> : <LogOut size={20} />}
+        {mode === "sign-in" ? (
+          <Mail aria-hidden="true" size={20} />
+        ) : (
+          <LogOut aria-hidden="true" size={20} />
+        )}
         {isPending
           ? mode === "sign-in"
             ? "Redirecting…"

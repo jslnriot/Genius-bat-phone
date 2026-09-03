@@ -9,6 +9,7 @@ import {
   parseTranscript,
   type CallRecord,
 } from "@/lib/calls";
+import { e164ToDisplayPhone } from "@/lib/contact-validation";
 
 function Transcript({ call }: { call: CallRecord }) {
   if (
@@ -16,17 +17,22 @@ function Transcript({ call }: { call: CallRecord }) {
     call.transcription_status === "processing"
   ) {
     return (
-      <p className="text-base text-[var(--color-secondary-text)]">
-        Transcription in progress...
-      </p>
+      <div role="status" className="space-y-1">
+        <p className="text-base font-medium text-[var(--color-primary)]">
+          Transcription in progress
+        </p>
+        <p className="text-sm text-[var(--color-secondary-text)]">
+          The transcript will appear here when it’s ready.
+        </p>
+      </div>
     );
   }
 
   if (call.transcription_status === "failed") {
     return (
       <div className="space-y-1">
-        <p className="text-base text-[var(--color-primary)]">
-          Transcript unavailable.
+        <p className="text-base font-medium text-[var(--color-primary)]">
+          Transcript unavailable
         </p>
         {call.recording_sid && (
           <p className="text-sm text-[var(--color-secondary-text)]">
@@ -40,7 +46,7 @@ function Transcript({ call }: { call: CallRecord }) {
   if (!call.transcript?.trim()) {
     return (
       <p className="text-base text-[var(--color-secondary-text)]">
-        No transcript is available for this call.
+        No transcript was created for this call.
       </p>
     );
   }
@@ -50,11 +56,11 @@ function Transcript({ call }: { call: CallRecord }) {
       {parseTranscript(call.transcript).map((section, index) => (
         <div key={`${section.speaker ?? "text"}-${index}`}>
           {section.speaker && (
-            <p className="mb-1 text-sm font-semibold text-[var(--color-primary)]">
+            <p className="mb-1 break-words text-sm font-semibold text-[var(--color-primary)]">
               {section.speaker}
             </p>
           )}
-          <p className="whitespace-pre-wrap text-base leading-6 text-[var(--color-primary)]">
+          <p className="break-words whitespace-pre-wrap text-base leading-6 text-[var(--color-primary)]">
             {section.text}
           </p>
         </div>
@@ -83,10 +89,15 @@ export function CallDetail({ call }: { call: CallRecord }) {
           <p className="text-base text-[var(--color-secondary-text)]">
             {formatCallDetailTime(call.start_time)}
           </p>
-          <p className="break-all text-sm text-[var(--color-secondary-text)]">
-            {call.destination_number ?? "Number unavailable"} ·{" "}
-            {formatCallDuration(getCallDuration(call))}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-1 text-sm text-[var(--color-secondary-text)]">
+            <span>
+              {call.destination_number
+                ? e164ToDisplayPhone(call.destination_number)
+                : "Number unavailable"}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{formatCallDuration(getCallDuration(call))}</span>
+          </div>
           <Badge variant={status.variant}>{status.label}</Badge>
         </div>
       </header>
@@ -111,7 +122,7 @@ export function CallDetail({ call }: { call: CallRecord }) {
           </audio>
         ) : (
           <p className="text-base text-[var(--color-secondary-text)]">
-            Recording unavailable.
+            No recording is available for this call.
           </p>
         )}
       </section>

@@ -47,7 +47,7 @@ describe("CallDetail", () => {
       />,
     );
 
-    expect(screen.getByText("Transcript unavailable.")).toBeInTheDocument();
+    expect(screen.getByText("Transcript unavailable")).toBeInTheDocument();
     expect(
       screen.getByText("The recording is still available above."),
     ).toBeInTheDocument();

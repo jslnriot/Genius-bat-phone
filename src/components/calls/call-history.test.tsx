@@ -21,7 +21,7 @@ describe("CallHistory", () => {
     render(<CallHistory calls={[call]} />);
 
     expect(screen.getByText("James")).toBeInTheDocument();
-    expect(screen.getByText("+12125550199")).toBeInTheDocument();
+    expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
     expect(screen.getByText(/20 sec/)).toBeInTheDocument();
     expect(screen.getByText("Transcript Ready")).toBeInTheDocument();
     expect(screen.getByRole("link")).toHaveAttribute("href", "/calls/call-1");

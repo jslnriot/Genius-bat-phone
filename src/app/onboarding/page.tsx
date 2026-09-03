@@ -36,7 +36,7 @@ export default async function OnboardingPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Phone number</CardTitle>
+          <CardTitle>Calling number</CardTitle>
           <CardDescription>
             You can update this later from your account.
           </CardDescription>

@@ -75,7 +75,7 @@ describe("CallsPage", () => {
     render(await CallsPage());
 
     expect(screen.getByText("Vish")).toBeInTheDocument();
-    expect(screen.getByText("+12125550199")).toBeInTheDocument();
+    expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
     expect(screen.getByText(/10 sec/)).toBeInTheDocument();
   });
 });

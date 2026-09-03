@@ -43,7 +43,7 @@ describe("ContactManager", () => {
 
     render(<ContactManager initialContacts={[]} />);
 
-    await user.click(screen.getByRole("button", { name: "Add Contact" }));
+    await user.click(screen.getByRole("button", { name: "Add contact" }));
     await user.type(screen.getByLabelText("Name"), "Ada123");
     await user.type(screen.getByLabelText("Phone number"), "21255");
     await user.click(screen.getByRole("button", { name: "Add contact" }));
@@ -121,7 +121,7 @@ describe("ContactManager", () => {
     await user.click(
       screen.getByRole("button", { name: /Ada Lovelace/ }),
     );
-    await user.click(screen.getByRole("button", { name: "Delete Contact" }));
+    await user.click(screen.getByRole("button", { name: "Delete contact" }));
 
     expect(deleteContact).toHaveBeenCalledWith(existingContact.id);
     expect(await screen.findByText("No contacts yet")).toBeInTheDocument();

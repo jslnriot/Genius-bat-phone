@@ -18,6 +18,9 @@ export type CallStatus = {
     | "Transcribing"
     | "Transcript Ready"
     | "Transcript Unavailable"
+    | "Busy"
+    | "Canceled"
+    | "No answer"
     | "Failed";
   variant: "default" | "success" | "warning" | "error" | "action";
 };
@@ -28,17 +31,22 @@ const ACTIVE_CALL_STATUSES = new Set([
   "queued",
   "ringing",
 ]);
-const FAILED_CALL_STATUSES = new Set([
-  "busy",
-  "canceled",
-  "failed",
-  "no-answer",
-]);
-
 export function getCallStatus(
   call: Pick<CallRecord, "status" | "transcript" | "transcription_status">,
 ): CallStatus {
-  if (FAILED_CALL_STATUSES.has(call.status ?? "")) {
+  if (call.status === "busy") {
+    return { label: "Busy", variant: "warning" };
+  }
+
+  if (call.status === "canceled") {
+    return { label: "Canceled", variant: "default" };
+  }
+
+  if (call.status === "no-answer") {
+    return { label: "No answer", variant: "warning" };
+  }
+
+  if (call.status === "failed") {
     return { label: "Failed", variant: "error" };
   }
 

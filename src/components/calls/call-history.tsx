@@ -8,13 +8,18 @@ import {
   getCallStatus,
   type CallRecord,
 } from "@/lib/calls";
+import { e164ToDisplayPhone } from "@/lib/contact-validation";
 
 export function CallHistory({ calls }: { calls: CallRecord[] }) {
   if (calls.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16">
+      <div className="flex flex-col items-center justify-center gap-4 py-12">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-muted-background)]">
-          <Phone size={32} className="text-[var(--color-secondary-text)]" />
+          <Phone
+            aria-hidden="true"
+            size={32}
+            className="text-[var(--color-secondary-text)]"
+          />
         </div>
         <div className="flex flex-col items-center gap-1 text-center">
           <p className="text-base font-medium text-[var(--color-primary)]">
@@ -41,21 +46,27 @@ export function CallHistory({ calls }: { calls: CallRecord[] }) {
           >
             <Link
               href={`/calls/${encodeURIComponent(call.id)}`}
-              className="flex min-h-[88px] items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-action)]"
+              className="flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold leading-6 text-[var(--color-primary)]">
-                  {call.contact_name_snapshot ?? "Unknown contact"}
-                </p>
+                <div className="flex items-start gap-2">
+                  <p className="min-w-0 flex-1 truncate text-base font-semibold leading-6 text-[var(--color-primary)]">
+                    {call.contact_name_snapshot ?? "Unknown contact"}
+                  </p>
+                  <Badge className="mt-0.5 shrink-0 whitespace-nowrap" variant={status.variant}>
+                    {status.label}
+                  </Badge>
+                </div>
                 <p className="truncate text-sm leading-5 text-[var(--color-secondary-text)]">
-                  {call.destination_number ?? "Number unavailable"}
+                  {call.destination_number
+                    ? e164ToDisplayPhone(call.destination_number)
+                    : "Number unavailable"}
                 </p>
-                <p className="mt-1 text-sm leading-5 text-[var(--color-secondary-text)]">
-                  {formatCallListTime(call.start_time)} · {duration}
-                </p>
-                <Badge className="mt-2" variant={status.variant}>
-                  {status.label}
-                </Badge>
+                <div className="mt-1 flex flex-wrap items-center gap-x-1 text-sm leading-5 text-[var(--color-secondary-text)]">
+                  <span>{formatCallListTime(call.start_time)}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{duration}</span>
+                </div>
               </div>
               <ChevronRight
                 aria-hidden="true"

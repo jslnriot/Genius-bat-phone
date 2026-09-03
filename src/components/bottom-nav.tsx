@@ -27,8 +27,11 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-white pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex h-16 max-w-[480px] items-center justify-around">
+    <nav
+      aria-label="Primary navigation"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-white pb-[env(safe-area-inset-bottom)]"
+    >
+      <div className="mx-auto grid h-16 max-w-[480px] grid-cols-3">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
@@ -37,15 +40,16 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1 px-4",
+                "flex min-h-11 w-full flex-col items-center justify-center gap-1 px-3 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action",
                 isActive
-                  ? "text-[var(--color-action)]"
-                  : "text-[var(--color-secondary-text)]"
+                  ? "text-action"
+                  : "text-secondary-text hover:text-primary"
               )}
             >
-              <Icon size={24} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <Icon aria-hidden="true" size={22} />
+              <span>{item.label}</span>
             </Link>
           );
         })}

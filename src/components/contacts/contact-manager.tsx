@@ -139,8 +139,8 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
     <div className="flex flex-col gap-6">
       {!formIsOpen ? (
         <Button type="button" className="w-full gap-3" onClick={openAddForm}>
-          <Plus size={20} />
-          Add Contact
+          <Plus aria-hidden="true" size={20} />
+          Add contact
         </Button>
       ) : (
         <Card>
@@ -230,11 +230,11 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
                 <Button
                   type="button"
                   variant="destructive"
-                  className="w-full"
+                  className="mt-2 w-full"
                   onClick={handleDelete}
                   disabled={isSaving}
                 >
-                  Delete Contact
+                  Delete contact
                 </Button>
               ) : null}
             </div>
@@ -243,9 +243,10 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
       )}
 
       {!formIsOpen && contacts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 py-16">
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
           <div className="bg-muted-background flex h-16 w-16 items-center justify-center rounded-full">
             <Users
+              aria-hidden="true"
               size={32}
               className="text-secondary-text"
             />
@@ -267,7 +268,7 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
             <button
               key={contact.id}
               type="button"
-              className="flex min-h-14 w-full items-center gap-3 rounded-(--radius-card) border border-border bg-white p-4 text-left shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+              className="flex min-h-14 w-full items-center gap-3 rounded-(--radius-card) border border-border bg-white px-4 py-3 text-left shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
               onClick={() => openEditForm(contact)}
             >
               <div className="min-w-0 flex-1">
@@ -279,6 +280,7 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
                 </p>
               </div>
               <ChevronRight
+                aria-hidden="true"
                 size={20}
                 className="text-secondary-text shrink-0"
               />

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AlertCircle } from "lucide-react";
 import { CallHistory } from "@/components/calls/call-history";
 import type { CallRecord } from "@/lib/calls";
 import { createClient } from "@/utils/supabase/server";
@@ -43,9 +44,24 @@ export default async function CallsPage() {
       </header>
 
       {error ? (
-        <p className="py-12 text-center text-base text-[var(--color-secondary-text)]">
-          Call history is temporarily unavailable.
-        </p>
+        <div
+          role="alert"
+          className="flex gap-3 rounded-(--radius-card) border border-border bg-white p-4"
+        >
+          <AlertCircle
+            aria-hidden="true"
+            size={20}
+            className="mt-0.5 shrink-0 text-error"
+          />
+          <div>
+            <p className="font-medium text-primary">
+              Call history is temporarily unavailable.
+            </p>
+            <p className="mt-1 text-sm text-secondary-text">
+              Please try again in a moment.
+            </p>
+          </div>
+        </div>
       ) : (
         <CallHistory calls={(data ?? []) as CallRecord[]} />
       )}
