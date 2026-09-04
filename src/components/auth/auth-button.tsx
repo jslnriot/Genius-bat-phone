@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
 
 type AuthButtonProps =
-  | { mode: "sign-in" }
+  | { mode: "sign-in"; returnTo?: string | null }
   | { mode: "sign-out" };
 
-export function AuthButton({ mode }: AuthButtonProps) {
+export function AuthButton(props: AuthButtonProps) {
+  const { mode } = props;
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const returnTo = mode === "sign-in" ? props.returnTo : undefined;
 
   async function handleClick() {
     setIsPending(true);
@@ -22,10 +24,15 @@ export function AuthButton({ mode }: AuthButtonProps) {
     const supabase = createClient();
 
     if (mode === "sign-in") {
+      const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+      if (returnTo) {
+        callbackUrl.searchParams.set("next", returnTo);
+      }
+
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       });
 

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { AlertCircle } from "lucide-react";
 import { AccountPhoneForm } from "@/components/auth/account-phone-form";
 import { AuthButton } from "@/components/auth/auth-button";
+import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -13,7 +14,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string | string[] }>;
+  searchParams: Promise<{ error?: string | string[]; next?: string | string[] }>;
 }) {
   const supabase = await createClient();
   const {
@@ -21,7 +22,13 @@ export default async function AccountPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const error = (await searchParams).error;
+    const resolvedSearchParams = await searchParams;
+    const error = resolvedSearchParams.error;
+    const returnTo = resolveSafeReturnPath(
+      typeof resolvedSearchParams.next === "string"
+        ? resolvedSearchParams.next
+        : undefined,
+    );
     const errorMessage =
       typeof error === "string" ? AUTH_ERROR_MESSAGES[error] : undefined;
 
@@ -58,7 +65,7 @@ export default async function AccountPage({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AuthButton mode="sign-in" />
+            <AuthButton mode="sign-in" returnTo={returnTo} />
           </CardContent>
         </Card>
       </div>

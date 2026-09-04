@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { CallDetail } from "@/components/calls/call-detail";
 import type { CallRecord } from "@/lib/calls";
+import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
 
 const CALL_DETAIL_SELECT =
@@ -11,16 +12,17 @@ export default async function CallDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/account");
+    const returnTo = resolveSafeReturnPath(`/calls/${id}`);
+    redirect(returnTo ? `/account?next=${encodeURIComponent(returnTo)}` : "/account");
   }
 
-  const { id } = await params;
   const { data: call, error } = await supabase
     .from("calls")
     .select(CALL_DETAIL_SELECT)

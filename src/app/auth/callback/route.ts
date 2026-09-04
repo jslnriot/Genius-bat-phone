@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: Request) {
@@ -29,6 +30,11 @@ export async function GET(request: Request) {
     .select("phone_number")
     .eq("id", user.id)
     .single();
+
+  const safeNext = resolveSafeReturnPath(searchParams.get("next"));
+  if (safeNext) {
+    return NextResponse.redirect(`${origin}${safeNext}`);
+  }
 
   return NextResponse.redirect(
     `${origin}${profile?.phone_number ? "/contacts" : "/onboarding"}`,

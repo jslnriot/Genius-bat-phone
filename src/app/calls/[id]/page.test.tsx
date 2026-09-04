@@ -45,6 +45,16 @@ beforeEach(() => {
 });
 
 describe("CallDetailPage", () => {
+  it("redirects logged-out users to sign in with a safe return path", async () => {
+    mocks.authGetUser.mockResolvedValue({ data: { user: null } });
+
+    await expect(
+      CallDetailPage({
+        params: Promise.resolve({ id: "call-1" }),
+      }),
+    ).rejects.toThrow("redirect:/account?next=%2Fcalls%2Fcall-1");
+  });
+
   it("renders a call returned through the authenticated owner query", async () => {
     mocks.query.maybeSingle.mockResolvedValue({
       data: {

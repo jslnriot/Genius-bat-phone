@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 
 const protectedPaths = ["/contacts", "/calls", "/onboarding"];
 
@@ -36,9 +37,13 @@ export async function proxy(request: NextRequest) {
   );
 
   if (requiresAuth && !claimsData?.claims) {
-    const redirectResponse = NextResponse.redirect(
-      new URL("/account", request.url),
-    );
+    const accountUrl = new URL("/account", request.url);
+    const safeNext = resolveSafeReturnPath(request.nextUrl.pathname);
+    if (safeNext) {
+      accountUrl.searchParams.set("next", safeNext);
+    }
+
+    const redirectResponse = NextResponse.redirect(accountUrl);
     response.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie);
     });
