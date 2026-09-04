@@ -77,6 +77,23 @@ describe("POST /api/twilio/recording", () => {
     expect(mocks.submitRecordingForTranscription).not.toHaveBeenCalled();
   });
 
+  it("rejects an invalid signature before updating the call row", async () => {
+    mocks.validateTwilioRequest.mockResolvedValue(null);
+
+    const response = await POST(
+      request({
+        CallSid: callSid,
+        RecordingSid: recordingSid,
+        RecordingStatus: "completed",
+        RecordingUrl: "https://api.twilio.com/recording/RE111",
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    expect(mocks.updateRecording).not.toHaveBeenCalled();
+    expect(mocks.submitRecordingForTranscription).not.toHaveBeenCalled();
+  });
+
   it("accepts a zero-duration completed recording and starts transcription", async () => {
     mocks.validateTwilioRequest.mockResolvedValue({
       params: new URLSearchParams({
