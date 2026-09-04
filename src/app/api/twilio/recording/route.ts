@@ -4,17 +4,13 @@ import {
   TwilioBatchTranscriptionClient,
 } from "@/lib/twilio/batch-transcription";
 import { logTwilioEvent } from "@/lib/twilio/logging";
+import { parseDuration } from "@/lib/twilio/parse-duration";
 import { SupabasePhase4Repository } from "@/lib/twilio/phase4-repository";
 import { validateTwilioRequest } from "@/lib/twilio/request-validation";
 import { SupabaseTelephonyRepository } from "@/lib/twilio/telephony-repository";
 import { invalidSignatureResponse } from "@/lib/twilio/voice-flow";
 
 export const runtime = "nodejs";
-
-function parseDuration(value: string | null) {
-  if (value === null || !/^\d+$/.test(value)) return undefined;
-  return Number(value);
-}
 
 export async function POST(request: Request) {
   let callSid: string | undefined;

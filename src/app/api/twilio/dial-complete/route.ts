@@ -1,4 +1,5 @@
 import { logTwilioEvent } from "@/lib/twilio/logging";
+import { parseDuration } from "@/lib/twilio/parse-duration";
 import { validateTwilioRequest } from "@/lib/twilio/request-validation";
 import { SupabaseTelephonyRepository } from "@/lib/twilio/telephony-repository";
 import {
@@ -10,18 +11,7 @@ import {
 
 export const runtime = "nodejs";
 
-const DIAL_STATUSES = new Set([
-  "busy",
-  "canceled",
-  "completed",
-  "failed",
-  "no-answer",
-]);
-
-function parseDuration(value: string | null) {
-  if (value === null || !/^\d+$/.test(value)) return undefined;
-  return Number(value);
-}
+const DIAL_STATUSES = new Set(["busy", "canceled", "completed", "failed", "no-answer"]);
 
 export async function POST(request: Request) {
   let callSid: string | undefined;

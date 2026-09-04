@@ -53,9 +53,9 @@ function gatherForContacts(
   return response.toString();
 }
 
-export function twimlResponse(xml: string, status = 200) {
+export function twimlResponse(xml: string) {
   return new Response(xml, {
-    status,
+    status: 200,
     headers: { "Content-Type": "text/xml; charset=utf-8" },
   });
 }

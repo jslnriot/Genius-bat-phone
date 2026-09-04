@@ -62,6 +62,16 @@ describe("call presentation", () => {
     ).toBe("Busy");
   });
 
+  it("keeps completed transcribed calls in the transcript-ready state", () => {
+    expect(
+      getCallStatus({
+        status: "completed",
+        transcript: "Caller:\nHello.",
+        transcription_status: "completed",
+      }).label,
+    ).toBe("Transcript Ready");
+  });
+
   it("uses concise readable durations", () => {
     expect(formatCallDuration(20)).toBe("20 sec");
     expect(formatCallDuration(75)).toBe("1 min 15 sec");

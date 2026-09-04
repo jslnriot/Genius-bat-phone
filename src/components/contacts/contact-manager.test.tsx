@@ -6,7 +6,8 @@ import {
   deleteContact,
   updateContact,
 } from "@/app/contacts/actions";
-import { ContactManager, type Contact } from "./contact-manager";
+import type { ContactRecord } from "@/lib/contact-validation";
+import { ContactManager } from "./contact-manager";
 
 vi.mock("@/app/contacts/actions", () => ({
   createContact: vi.fn(),
@@ -14,7 +15,7 @@ vi.mock("@/app/contacts/actions", () => ({
   deleteContact: vi.fn(),
 }));
 
-const existingContact: Contact = {
+const existingContact: ContactRecord = {
   id: "3f6cf18d-536d-42a8-93c6-f12597b8834c",
   name: "Ada Lovelace",
   phone_number: "+12125550199",
@@ -32,7 +33,7 @@ describe("ContactManager", () => {
 
   it("validates and adds a contact with a canonical phone number", async () => {
     const user = userEvent.setup();
-    const newContact: Contact = {
+    const newContact: ContactRecord = {
       ...existingContact,
       id: "cf954446-4844-4852-a883-f5f124ca0218",
     };
@@ -74,7 +75,7 @@ describe("ContactManager", () => {
 
   it("loads a saved contact for editing and saves the changes", async () => {
     const user = userEvent.setup();
-    const updatedContact: Contact = {
+    const updatedContact: ContactRecord = {
       ...existingContact,
       name: "Grace Hopper",
       phone_number: "+14155550100",

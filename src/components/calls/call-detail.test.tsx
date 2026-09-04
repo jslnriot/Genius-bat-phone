@@ -51,11 +51,33 @@ describe("CallDetail", () => {
       />,
     );
 
+    expect(screen.getByText("Transcript Unavailable")).toBeInTheDocument();
     expect(screen.getByText("Transcript unavailable")).toBeInTheDocument();
     expect(
       screen.getByText("The recording is still available above."),
     ).toBeInTheDocument();
     expect(container.querySelector("audio")).toBeInTheDocument();
+  });
+
+  it("shows transcript unavailable without recording guidance when no recording exists", () => {
+    const { container } = render(
+      <CallDetail
+        call={{
+          ...call,
+          recording_sid: null,
+          recording_duration: null,
+          transcript: null,
+          transcription_status: "failed",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Transcript Unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Transcript unavailable")).toBeInTheDocument();
+    expect(
+      screen.queryByText("The recording is still available above."),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector("audio")).not.toBeInTheDocument();
   });
 
   it("shows failed dial outcomes without a recording player", () => {

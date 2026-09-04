@@ -1,4 +1,5 @@
 import { logTwilioEvent } from "@/lib/twilio/logging";
+import { getTwilioPhoneNumber } from "@/lib/twilio/environment";
 import { validateTwilioRequest } from "@/lib/twilio/request-validation";
 import { SupabaseTelephonyRepository } from "@/lib/twilio/telephony-repository";
 import {
@@ -39,10 +40,7 @@ export async function POST(request: Request) {
       return new Response("Invalid Twilio payload.", { status: 400 });
     }
 
-    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-    if (!twilioPhoneNumber) {
-      throw new Error("TWILIO_PHONE_NUMBER is not configured.");
-    }
+    const twilioPhoneNumber = getTwilioPhoneNumber();
 
     const attempt =
       new URL(request.url).searchParams.get("attempt") === "1" ? 1 : 0;

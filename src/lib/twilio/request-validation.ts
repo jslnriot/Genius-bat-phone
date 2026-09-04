@@ -1,12 +1,13 @@
 import "server-only";
 
 import twilio from "twilio";
+import { getTwilioAuthToken } from "@/lib/twilio/environment";
 
-export type ValidatedTwilioRequest = {
+type ValidatedTwilioRequest = {
   params: URLSearchParams;
 };
 
-export type ValidatedTwilioJsonRequest = {
+type ValidatedTwilioJsonRequest = {
   rawBody: string;
 };
 
@@ -42,11 +43,7 @@ function validationParameters(params: URLSearchParams) {
 export async function validateTwilioRequest(
   request: Request,
 ): Promise<ValidatedTwilioRequest | null> {
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  if (!authToken) {
-    throw new Error("TWILIO_AUTH_TOKEN is not configured.");
-  }
-
+  const authToken = getTwilioAuthToken();
   const signature = request.headers.get("x-twilio-signature");
   if (!signature) return null;
 
@@ -65,11 +62,7 @@ export async function validateTwilioRequest(
 export async function validateTwilioJsonRequest(
   request: Request,
 ): Promise<ValidatedTwilioJsonRequest | null> {
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  if (!authToken) {
-    throw new Error("TWILIO_AUTH_TOKEN is not configured.");
-  }
-
+  const authToken = getTwilioAuthToken();
   const signature = request.headers.get("x-twilio-signature");
   if (!signature) return null;
 

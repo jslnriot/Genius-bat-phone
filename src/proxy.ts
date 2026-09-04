@@ -1,15 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { resolveSafeReturnPath } from "@/lib/safe-return-path";
+import { getPublicSupabaseEnv } from "@/utils/supabase/public-env";
 
 const protectedPaths = ["/contacts", "/calls", "/onboarding"];
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
+  const { supabaseUrl, publishableKey } = getPublicSupabaseEnv();
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    supabaseUrl,
+    publishableKey,
     {
       cookies: {
         getAll() {

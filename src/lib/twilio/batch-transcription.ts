@@ -1,6 +1,7 @@
 import "server-only";
 
 import { sendCallEmail, type CallEmailSender } from "@/lib/email/call-transcript";
+import { getTwilioTranscriptionConfiguration } from "@/lib/twilio/environment";
 import { logTwilioEvent } from "@/lib/twilio/logging";
 import type {
   Phase4Call,
@@ -43,19 +44,13 @@ export class TwilioBatchTranscriptionClient
   implements BatchTranscriptionClient
 {
   async submit(recordingSid: string) {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const configurationId =
-      process.env.TWILIO_TRANSCRIPTION_CONFIGURATION_ID;
-
-    if (!accountSid || !authToken || !configurationId) {
-      throw new Error("Twilio transcription environment is not configured.");
-    }
+    const { authorization, configurationId } =
+      getTwilioTranscriptionConfiguration();
 
     const response = await fetch(TRANSCRIPTIONS_URL, {
       method: "POST",
       headers: {
-        Authorization: `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+        Authorization: authorization,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -205,12 +200,17 @@ export async function submitRecordingForTranscription(
     return;
   }
 
+  const recordingSid = call.recording_sid;
+  if (!recordingSid) {
+    throw new Error("Call recording SID is required before transcription submission.");
+  }
+
   if (!(await repository.claimTranscription(call.id))) return;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     await repository.setTranscriptionAttempt(call.id, attempt);
     try {
-      const transcription = await client.submit(call.recording_sid!);
+      const transcription = await client.submit(recordingSid);
       await repository.markTranscriptionSubmitted(call.id, transcription.id);
       logTwilioEvent("info", "twilio.transcription_submitted", {
         attempt,
@@ -306,4 +306,3 @@ export async function handleTranscriptionCallback(
   );
 }
 
-export { TRANSCRIPTIONS_URL };

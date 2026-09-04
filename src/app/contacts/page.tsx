@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import {
   ContactManager,
-  type Contact,
 } from "@/components/contacts/contact-manager";
+import type { ContactRecord } from "@/lib/contact-validation";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function ContactsPage() {
@@ -44,7 +44,7 @@ export default async function ContactsPage() {
           </p>
         </div>
       ) : (
-        <ContactManager initialContacts={(data ?? []) as Contact[]} />
+        <ContactManager initialContacts={(data ?? []) as ContactRecord[]} />
       )}
     </div>
   );

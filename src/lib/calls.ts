@@ -11,6 +11,9 @@ export type CallRecord = {
   transcription_status: string | null;
 };
 
+export const CALL_RECORD_SELECT =
+  "id, contact_name_snapshot, destination_number, status, start_time, duration, recording_sid, recording_duration, transcript, transcription_status";
+
 export type CallStatus = {
   label:
     | "Calling"

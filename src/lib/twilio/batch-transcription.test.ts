@@ -150,6 +150,16 @@ describe("Batch Transcription submission", () => {
     );
 
     expect(client.submit).toHaveBeenCalledTimes(2);
+    expect(repository.setTranscriptionAttempt).toHaveBeenNthCalledWith(
+      1,
+      call.id,
+      1,
+    );
+    expect(repository.setTranscriptionAttempt).toHaveBeenNthCalledWith(
+      2,
+      call.id,
+      2,
+    );
     expect(repository.markTranscriptionFailed).toHaveBeenCalledWith(call.id);
     expect(sender.send).toHaveBeenCalledOnce();
     expect(sender.send).toHaveBeenCalledWith(
@@ -270,6 +280,55 @@ describe("Batch Transcription callbacks", () => {
 
     expect(repository.storeCompletedTranscription).not.toHaveBeenCalled();
     expect(sender.send).not.toHaveBeenCalled();
+  });
+
+  it("does not resend email for a duplicate failed callback after email was sent", async () => {
+    const { repository, sender } = dependencies();
+
+    await handleTranscriptionCallback(
+      {
+        id: "job-1",
+        sourceId: call.recording_sid!,
+        status: "failed",
+      },
+      {
+        ...call,
+        email_status: "sent",
+        transcription_id: "job-1",
+        transcription_status: "failed",
+      },
+      repository,
+      sender,
+    );
+
+    expect(repository.markTranscriptionFailed).toHaveBeenCalledWith(
+      call.id,
+      "job-1",
+    );
+    expect(sender.send).not.toHaveBeenCalled();
+  });
+
+  it("does not resend email for a duplicate failed callback while email is pending", async () => {
+    const { repository, sender } = dependencies();
+
+    await handleTranscriptionCallback(
+      {
+        id: "job-1",
+        sourceId: call.recording_sid!,
+        status: "failed",
+      },
+      {
+        ...call,
+        email_status: "pending",
+        transcription_id: "job-1",
+        transcription_status: "failed",
+      },
+      repository,
+      sender,
+    );
+
+    expect(sender.send).not.toHaveBeenCalled();
+    expect(repository.claimEmail).not.toHaveBeenCalled();
   });
 
   it("sorts sentence text chronologically with proven channel labels", () => {

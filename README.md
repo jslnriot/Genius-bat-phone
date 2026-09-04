@@ -33,6 +33,19 @@ npm run dev
 
 Add the required values to `.env.local`. The app runs at [http://localhost:3000](http://localhost:3000).
 
+## Validation
+
+Run the automated checks with:
+
+```bash
+npm test
+npx tsc --noEmit
+npm run build
+npm run lint
+```
+
+Use `npm run test:watch` during local development.
+
 ## Vercel
 
 In the Vercel project settings, add all variables listed in `.env.example` under Environment Variables. Configure them for every Vercel environment that should run the app, then redeploy after changing a value.
@@ -100,3 +113,11 @@ POST https://genius-bat-phone.vercel.app/api/twilio/transcription
 ```
 
 Set `TWILIO_TRANSCRIPTION_CONFIGURATION_ID` to the returned ID (a string beginning with `voice_transcriptionconfiguration_`). The application submits each completed Twilio Recording SID to Twilio; it does not call Deepgram directly. Configure `RESEND_FROM_EMAIL` with a sender on a verified Resend domain.
+
+## Call history and recordings
+
+Signed-in users can review their call history at `/calls` and open a specific
+call at `/calls/[id]`. The browser never receives Twilio recording URLs or
+credentials directly; playback is proxied through
+`/api/calls/[callId]/recording` after the current user is authenticated and
+ownership is confirmed.

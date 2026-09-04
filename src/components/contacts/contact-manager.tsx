@@ -21,15 +21,13 @@ import {
   validateDisplayPhone,
 } from "@/lib/contact-validation";
 
-export type Contact = ContactRecord;
-
 type ContactManagerProps = {
-  initialContacts: Contact[];
+  initialContacts: ContactRecord[];
 };
 
 export function ContactManager({ initialContacts }: ContactManagerProps) {
   const [contacts, setContacts] = useState(initialContacts);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [editingContact, setEditingContact] = useState<ContactRecord | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -46,7 +44,7 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
     setIsAdding(true);
   }
 
-  function openEditForm(contact: Contact) {
+  function openEditForm(contact: ContactRecord) {
     setEditingContact(contact);
     setName(contact.name);
     setPhoneNumber(e164ToDisplayPhone(contact.phone_number));

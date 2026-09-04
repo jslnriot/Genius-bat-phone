@@ -1,11 +1,8 @@
 import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { CallHistory } from "@/components/calls/call-history";
-import type { CallRecord } from "@/lib/calls";
+import { CALL_RECORD_SELECT, type CallRecord } from "@/lib/calls";
 import { createClient } from "@/utils/supabase/server";
-
-const CALL_HISTORY_SELECT =
-  "id, contact_name_snapshot, destination_number, status, start_time, duration, recording_sid, recording_duration, transcript, transcription_status";
 
 export default async function CallsPage() {
   const supabase = await createClient();
@@ -19,7 +16,7 @@ export default async function CallsPage() {
 
   const { data, error } = await supabase
     .from("calls")
-    .select(CALL_HISTORY_SELECT)
+    .select(CALL_RECORD_SELECT)
     .eq("user_id", user.id)
     .order("start_time", { ascending: false, nullsFirst: false });
 

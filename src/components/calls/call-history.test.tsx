@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import { CallHistory } from "./call-history";
 import type { CallRecord } from "@/lib/calls";
 
@@ -15,6 +15,10 @@ const call: CallRecord = {
   transcript: "Caller:\nHello.",
   transcription_status: "completed",
 };
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("CallHistory", () => {
   it("displays useful metadata and links to the owned call detail", () => {
@@ -52,5 +56,22 @@ describe("CallHistory", () => {
 
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("Transcribing")).toBeInTheDocument();
+  });
+
+  it("shows failed transcription calls in history with a subdued badge", () => {
+    render(
+      <CallHistory
+        calls={[
+          {
+            ...call,
+            transcript: null,
+            transcription_status: "failed",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Transcript Unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/calls/call-1");
   });
 });

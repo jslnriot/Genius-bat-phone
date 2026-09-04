@@ -9,7 +9,7 @@ import {
 import type { MatchableContact } from "@/lib/twilio/contact-matching";
 import { createAdminClient } from "@/utils/supabase/admin";
 
-export type CallerProfile = {
+type CallerProfile = {
   id: string;
 };
 
@@ -64,7 +64,7 @@ export class SupabaseTelephonyRepository implements TelephonyRepository {
     return data ?? [];
   }
 
-  async findCallBySid(callSid: string) {
+  private async findCallBySid(callSid: string) {
     const { data, error } = await this.supabase
       .from("calls")
       .select(CALL_SELECT)

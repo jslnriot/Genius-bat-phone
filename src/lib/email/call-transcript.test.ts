@@ -151,4 +151,58 @@ describe("call transcript email", () => {
       "https://api.twilio.com/recordings/RE111",
     );
   });
+
+  it("uses fallback transcript copy when no transcript is available", () => {
+    const email = buildCallEmail(call, "initiator@example.com", null);
+
+    expect(email.html).toContain(
+      "Transcript unavailable. The call recording may still be available.",
+    );
+  });
+
+  it("does not send when email was already sent", async () => {
+    process.env.RESEND_FROM_EMAIL = "Bat Phone <transcripts@example.com>";
+    const repo = repository();
+    const sender: CallEmailSender = {
+      send: vi.fn(async () => undefined),
+    };
+
+    await sendCallEmail(
+      { ...call, email_status: "sent" },
+      call.transcript,
+      repo,
+      sender,
+    );
+
+    expect(repo.claimEmail).not.toHaveBeenCalled();
+    expect(sender.send).not.toHaveBeenCalled();
+  });
+
+  it("does not send when another worker already claimed email delivery", async () => {
+    process.env.RESEND_FROM_EMAIL = "Bat Phone <transcripts@example.com>";
+    const repo = repository();
+    vi.mocked(repo.claimEmail).mockResolvedValue(false);
+    const sender: CallEmailSender = {
+      send: vi.fn(async () => undefined),
+    };
+
+    await sendCallEmail(call, call.transcript, repo, sender);
+
+    expect(repo.claimEmail).toHaveBeenCalledWith(call.id);
+    expect(sender.send).not.toHaveBeenCalled();
+  });
+
+  it("marks email skipped when the initiating user has no recipient address", async () => {
+    process.env.RESEND_FROM_EMAIL = "Bat Phone <transcripts@example.com>";
+    const repo = repository();
+    vi.mocked(repo.resolveUserEmail).mockResolvedValue(null);
+    const sender: CallEmailSender = {
+      send: vi.fn(async () => undefined),
+    };
+
+    await sendCallEmail(call, call.transcript, repo, sender);
+
+    expect(repo.markEmailSkipped).toHaveBeenCalledWith(call.id);
+    expect(sender.send).not.toHaveBeenCalled();
+  });
 });
