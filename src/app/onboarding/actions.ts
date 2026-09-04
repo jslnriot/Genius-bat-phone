@@ -30,12 +30,25 @@ export async function saveProfilePhone(
 
   const { error } = await supabase
     .from("profiles")
-    .update({ phone_number: phoneNumber })
-    .eq("id", user.id)
+    .upsert(
+      {
+        id: user.id,
+        email: user.email ?? null,
+        phone_number: phoneNumber,
+      },
+      { onConflict: "id" },
+    )
     .select("id")
     .single();
 
   if (error) {
+    console.error(
+      JSON.stringify({
+        event: "profiles.save_phone_failed",
+        userId: user.id,
+        code: error.code,
+      }),
+    );
     return {
       success: false,
       message: "Your phone number could not be saved. Please try again.",
@@ -43,5 +56,6 @@ export async function saveProfilePhone(
   }
 
   revalidatePath("/account");
+  revalidatePath("/onboarding");
   return { success: true, data: undefined };
 }
