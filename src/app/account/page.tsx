@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { AccountPhoneForm } from "@/components/auth/account-phone-form";
-import { AuthButton } from "@/components/auth/auth-button";
+import { AuthButton, AuthSignUpLink } from "@/components/auth/auth-button";
 import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
 
@@ -68,6 +68,10 @@ export default async function AccountPage({
             <AuthButton mode="sign-in" returnTo={returnTo} />
           </CardContent>
         </Card>
+
+        <p className="text-center text-sm text-secondary-text">
+          Don&apos;t have an account? <AuthSignUpLink />
+        </p>
       </div>
     );
   }

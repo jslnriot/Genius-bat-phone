@@ -10,6 +10,45 @@ type AuthButtonProps =
   | { mode: "sign-in"; returnTo?: string | null }
   | { mode: "sign-out" };
 
+async function startGoogleOAuth(returnTo?: string | null) {
+  const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+  if (returnTo) {
+    callbackUrl.searchParams.set("next", returnTo);
+  }
+
+  return createClient().auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: callbackUrl.toString(),
+    },
+  });
+}
+
+export function AuthSignUpLink() {
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleClick() {
+    setIsPending(true);
+
+    const { error } = await startGoogleOAuth("/onboarding");
+
+    if (error) {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="text-action text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 disabled:opacity-50"
+      onClick={handleClick}
+      disabled={isPending}
+    >
+      {isPending ? "Redirecting…" : "Sign up"}
+    </button>
+  );
+}
+
 export function AuthButton(props: AuthButtonProps) {
   const { mode } = props;
   const router = useRouter();
@@ -24,17 +63,7 @@ export function AuthButton(props: AuthButtonProps) {
     const supabase = createClient();
 
     if (mode === "sign-in") {
-      const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
-      if (returnTo) {
-        callbackUrl.searchParams.set("next", returnTo);
-      }
-
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: callbackUrl.toString(),
-        },
-      });
+      const { error: signInError } = await startGoogleOAuth(returnTo);
 
       if (signInError) {
         setError("Google sign-in could not be started. Please try again.");

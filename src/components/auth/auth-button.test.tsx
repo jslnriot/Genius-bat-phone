@@ -20,7 +20,7 @@ vi.mock("next/navigation", () => ({
   })),
 }));
 
-import { AuthButton } from "./auth-button";
+import { AuthButton, AuthSignUpLink } from "./auth-button";
 
 describe("AuthButton", () => {
   beforeEach(() => {
@@ -49,6 +49,19 @@ describe("AuthButton", () => {
       options: {
         redirectTo:
           "http://localhost:3000/auth/callback?next=%2Fcalls%2F97d0a5cd-8742-4059-a821-e57568050bb7",
+      },
+    });
+  });
+
+  it("starts Google sign-up with onboarding as the return path", async () => {
+    render(<AuthSignUpLink />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Sign up" }));
+
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:3000/auth/callback?next=%2Fonboarding",
       },
     });
   });

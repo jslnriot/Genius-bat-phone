@@ -11,6 +11,7 @@ vi.mock("@/utils/supabase/server", () => ({
 
 vi.mock("@/components/auth/auth-button", () => ({
   AuthButton: () => <button>Sign in with Google</button>,
+  AuthSignUpLink: () => <button>Sign up</button>,
 }));
 
 vi.mock("@/components/auth/account-phone-form", () => ({
@@ -49,5 +50,14 @@ describe("AccountPage", () => {
     );
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("offers a sign-up link for new users", async () => {
+    render(await AccountPage({ searchParams: Promise.resolve({}) }));
+
+    expect(
+      screen.getByText("Don't have an account?", { exact: false }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign up" })).toBeInTheDocument();
   });
 });
