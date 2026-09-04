@@ -7,6 +7,8 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ callId: string }> },
 ) {
+  // Proxy recordings through Bat Phone so the browser never needs Twilio media
+  // URLs or account credentials directly.
   const supabase = await createClient();
   const {
     data: { user },

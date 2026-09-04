@@ -16,6 +16,8 @@ export function externallyVisibleUrl(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto");
 
+  // Twilio signs the public webhook URL it called, not an internal platform URL.
+  // Reconstruct that externally visible URL before validating the signature.
   if (!forwardedHost) return request.url;
 
   const protocol =
@@ -67,6 +69,8 @@ export async function validateTwilioJsonRequest(
   if (!signature) return null;
 
   const rawBody = await request.text();
+  // Twilio's JSON callback signature covers the raw body bytes, so validation
+  // must happen before JSON.parse changes formatting or key order.
   const isValid = twilio.validateRequestWithBody(
     authToken,
     signature,

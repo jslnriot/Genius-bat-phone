@@ -2,6 +2,67 @@
 
 Take-home full-stack project for Genius: an AI-assisted employee calling tool.
 
+## Quick Start
+
+### Live application
+
+Production demo: [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
+
+- This is the deployed demonstration environment.
+- Authentication is still required before using the app.
+- Supabase, Twilio, and Resend are already configured there.
+
+### Local development
+
+1. Clone the repository.
+2. `nvm use`
+3. `cp .env.example .env.local`
+4. Populate the required environment values.
+5. `npm ci`
+6. `npm run dev`
+7. Open [http://localhost:3000](http://localhost:3000)
+
+For Supabase, Twilio, Resend, and OAuth provider details, use the setup sections further down in this README.
+
+### GitHub Codespaces
+
+1. Create or open a Codespace for the repository.
+2. Repository-scoped Codespaces secrets are injected as environment variables.
+3. The dev container installs dependencies with `npm ci`.
+4. Run `npm run dev`.
+5. Open forwarded port `3000`.
+
+This repository currently forwards port `3000` and runs `npm ci` via `postCreateCommand`. If a reviewer does not have access to the repository's Codespaces secrets, they will need the same environment values supplied another way.
+
+### Validation
+
+```bash
+npm test
+npx tsc --noEmit
+npm run build
+npm run lint
+```
+
+## How the project is organized
+
+- `README.md`: setup, environment requirements, and the fastest ways to run or review the app.
+- `docs/ARCHITECTURE.md`: how the system works end to end, including auth, voice, transcription, email, and security boundaries.
+- `src/README.md`: where the implementation lives and which files to open for specific changes.
+- `PROCESS.md`: chronological implementation journal for the build-out and cleanup passes.
+
+## Tech stack snapshot
+
+| Area | Current implementation | Notes |
+| --- | --- | --- |
+| Application | Next.js 16.3.4 App Router, React 19.2.8, TypeScript 5.9.2 | Single Next.js application for UI, Server Actions, and route handlers |
+| UI | Tailwind CSS 4.3.3, local shadcn-style primitives in `src/components/ui`, Lucide React, Geist via `next/font` | UI primitives are local components, not an externally hosted design system |
+| Authentication / data | Supabase Auth, Google OAuth through Supabase, Supabase Postgres, Row Level Security | Browser data access uses authenticated Supabase clients plus RLS |
+| Telephony | Twilio Programmable Voice, TwiML, dual-channel recording on `<Dial>` | Twilio drives the inbound number, prompts, bridging, and callbacks |
+| Transcription | Twilio Batch Transcription, Twilio-managed transcription configuration, Deepgram Nova-3 configured inside Twilio | The app submits `RecordingSid` jobs to Twilio and does not call Deepgram directly |
+| Email | Resend | Sends transcript or fallback post-call email to the initiating employee |
+| Hosting / reproducibility | Vercel production deployment, GitHub Codespaces dev container | Codespaces is documented for reviewer reproducibility |
+| Testing / quality | Vitest 4.1.11, React Testing Library 16.3.3, TypeScript checks, ESLint 9.16.0 | `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run lint` |
+
 ## Environment variables
 
 Bat Phone requires these variables:

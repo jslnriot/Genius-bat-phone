@@ -110,6 +110,8 @@ function dialTwiml(call: DialableCall, callerId: string) {
       answerOnBridge: true,
       callerId,
       method: "POST",
+      // Dual-channel recording lets the post-call transcript label the caller
+      // and the destination separately when Twilio returns sentence metadata.
       record: "record-from-answer-dual",
       recordingStatusCallback: "/api/twilio/recording",
       recordingStatusCallbackEvent: ["completed"],
@@ -169,6 +171,8 @@ export async function resolveContactTwiml(
         );
   }
 
+  // Persist the call before handing control back to Twilio so retried dial or
+  // recording callbacks can update one durable row keyed by CallSid.
   const call = await repository.createCallBeforeDial({
     contact_id: contact.id,
     contact_name_snapshot: contact.name,

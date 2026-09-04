@@ -114,6 +114,8 @@ export async function sendCallEmail(
   sender: CallEmailSender,
 ) {
   if (call.email_status !== null) return;
+  // Email delivery is claimed in the database first so duplicate transcription
+  // callbacks do not fan out duplicate transcript emails.
   if (!(await repository.claimEmail(call.id))) return;
 
   const recipient = await repository.resolveUserEmail(call.user_id);

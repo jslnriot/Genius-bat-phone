@@ -6,6 +6,8 @@ export async function createClient() {
   const cookieStore = await cookies();
   const { supabaseUrl, publishableKey } = getPublicSupabaseEnv();
 
+  // This client represents the current browser session on the server, so reads
+  // and writes still flow through the same authenticated RLS boundary.
   return createServerClient(
     supabaseUrl,
     publishableKey,

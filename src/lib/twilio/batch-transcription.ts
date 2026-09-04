@@ -205,6 +205,8 @@ export async function submitRecordingForTranscription(
     throw new Error("Call recording SID is required before transcription submission.");
   }
 
+  // Claim the call before contacting Twilio so a retried recording webhook
+  // cannot submit a duplicate batch transcription job for the same recording.
   if (!(await repository.claimTranscription(call.id))) return;
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
