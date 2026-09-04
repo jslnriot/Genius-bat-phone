@@ -35,4 +35,22 @@ describe("CallHistory", () => {
       screen.getByText(/Calls you place through Bat Phone/),
     ).toBeInTheDocument();
   });
+
+  it("shows a transcribing call from the stored snapshot name", () => {
+    render(
+      <CallHistory
+        calls={[
+          {
+            ...call,
+            contact_name_snapshot: "Alice",
+            transcript: null,
+            transcription_status: "processing",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getByText("Transcribing")).toBeInTheDocument();
+  });
 });

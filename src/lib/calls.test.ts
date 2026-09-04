@@ -14,6 +14,14 @@ describe("call presentation", () => {
     [
       {
         status: "completed",
+        transcript: null,
+        transcription_status: "processing",
+      },
+      "Transcribing",
+    ],
+    [
+      {
+        status: "completed",
         transcript: "Caller:\nHello.",
         transcription_status: "completed",
       },

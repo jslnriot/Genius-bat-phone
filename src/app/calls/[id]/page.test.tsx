@@ -75,6 +75,35 @@ describe("CallDetailPage", () => {
     expect(mocks.query.eq).toHaveBeenCalledWith("user_id", "user-1");
   });
 
+  it("renders a call while transcription is still in progress", async () => {
+    mocks.query.maybeSingle.mockResolvedValue({
+      data: {
+        id: "call-1",
+        contact_name_snapshot: "James",
+        destination_number: "+12125550199",
+        start_time: "2026-09-02T20:40:00.000Z",
+        duration: 20,
+        recording_sid: "RE111",
+        recording_duration: 18,
+        status: "completed",
+        transcript: null,
+        transcription_status: "pending",
+      },
+      error: null,
+    });
+
+    render(
+      await CallDetailPage({
+        params: Promise.resolve({ id: "call-1" }),
+      }),
+    );
+
+    expect(screen.getByText("Transcribing")).toBeInTheDocument();
+    expect(
+      screen.getByText("Transcription in progress"),
+    ).toBeInTheDocument();
+  });
+
   it("returns not found when RLS hides another user's call", async () => {
     mocks.query.maybeSingle.mockResolvedValue({ data: null, error: null });
 

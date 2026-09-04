@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import { CallDetail } from "./call-detail";
 import type { CallRecord } from "@/lib/calls";
 
@@ -15,6 +15,10 @@ const call: CallRecord = {
   transcript: "Caller:\nHello.\n\nJames:\nHello back.",
   transcription_status: "completed",
 };
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("CallDetail", () => {
   it("renders the transcript and protected recording player", () => {
@@ -77,5 +81,65 @@ describe("CallDetail", () => {
       screen.getByText("No transcript was created for this call."),
     ).toBeInTheDocument();
     expect(container.querySelector("audio")).not.toBeInTheDocument();
+  });
+
+  it.each(["pending", "processing"] as const)(
+    "shows in-progress transcription with recording when status is %s",
+    (transcriptionStatus) => {
+      const { container } = render(
+        <CallDetail
+          call={{
+            ...call,
+            transcript: null,
+            transcription_status: transcriptionStatus,
+          }}
+        />,
+      );
+
+      expect(screen.getByText("Transcribing")).toBeInTheDocument();
+      expect(
+        screen.getByText("Transcription in progress"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("The transcript will appear here when it’s ready."),
+      ).toBeInTheDocument();
+      expect(container.querySelector("audio")).toBeInTheDocument();
+      expect(screen.queryByText("Hello.")).not.toBeInTheDocument();
+    },
+  );
+
+  it("keeps the historical snapshot name after a contact rename", () => {
+    render(
+      <CallDetail
+        call={{
+          ...call,
+          contact_name_snapshot: "Alice",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Call with Alice" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Alicia")).not.toBeInTheDocument();
+  });
+
+  it("remains usable from calls-row fields after the contact is deleted", () => {
+    const { container } = render(
+      <CallDetail
+        call={{
+          ...call,
+          contact_name_snapshot: "Deleted Contact",
+          destination_number: "+14155550100",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Call with Deleted Contact" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("(415) 555-0100")).toBeInTheDocument();
+    expect(screen.getByText("Hello.")).toBeInTheDocument();
+    expect(container.querySelector("audio")).toBeInTheDocument();
   });
 });
