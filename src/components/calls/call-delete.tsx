@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { deleteCall } from "@/app/calls/actions";
 
 type CallDeleteProps = {
   callId: string;
 };
+
+const destructiveOutlineClassName =
+  "min-h-11 w-full border border-error/30 bg-white hover:bg-error/10";
 
 export function CallDelete({ callId }: CallDeleteProps) {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -42,14 +46,16 @@ export function CallDelete({ callId }: CallDeleteProps) {
       className="mt-8 space-y-4 border-t border-border pt-8"
     >
       {!isConfirming ? (
-        <Button
-          type="button"
-          variant="destructive"
-          className="min-h-11 w-full"
-          onClick={openConfirmation}
-        >
-          Delete call
-        </Button>
+        <Tooltip label="Delete this call from your history" className="w-full">
+          <Button
+            type="button"
+            variant="destructive"
+            className={destructiveOutlineClassName}
+            onClick={openConfirmation}
+          >
+            Delete call
+          </Button>
+        </Tooltip>
       ) : (
         <div className="space-y-4">
           <div className="space-y-2">
@@ -70,24 +76,31 @@ export function CallDelete({ callId }: CallDeleteProps) {
             </p>
           ) : null}
           <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="min-h-11 w-full"
-              disabled={isDeleting}
-              onClick={closeConfirmation}
+            <Tooltip label="Cancel deletion" className="w-full">
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-11 w-full"
+                disabled={isDeleting}
+                onClick={closeConfirmation}
+              >
+                Cancel
+              </Button>
+            </Tooltip>
+            <Tooltip
+              label="Permanently delete this call"
+              className="w-full"
             >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              className="min-h-11 w-full"
-              disabled={isDeleting}
-              onClick={handleDelete}
-            >
-              {isDeleting ? "Deleting…" : "Delete call"}
-            </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                className={destructiveOutlineClassName}
+                disabled={isDeleting}
+                onClick={handleDelete}
+              >
+                {isDeleting ? "Deleting…" : "Delete call"}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       )}

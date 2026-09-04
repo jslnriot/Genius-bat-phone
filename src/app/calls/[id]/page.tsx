@@ -43,5 +43,16 @@ export default async function CallDetailPage({
     notFound();
   }
 
-  return <CallDetail call={call as CallRecord} />;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("phone_number")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  return (
+    <CallDetail
+      call={call as CallRecord}
+      callerPhoneNumber={profile?.phone_number ?? null}
+    />
+  );
 }

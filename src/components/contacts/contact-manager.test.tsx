@@ -88,7 +88,9 @@ describe("ContactManager", () => {
     render(<ContactManager initialContacts={[existingContact]} />);
 
     await user.click(
-      screen.getByRole("button", { name: /Ada Lovelace/ }),
+      screen.getByRole("button", {
+        name: "Ada Lovelace (212) 555-0199",
+      }),
     );
 
     expect(screen.getByLabelText("Phone number")).toHaveValue(
@@ -110,7 +112,55 @@ describe("ContactManager", () => {
     expect(screen.getByText("(415) 555-0100")).toBeInTheDocument();
   });
 
-  it("deletes an existing contact", async () => {
+  it("opens edit from the explicit Edit action", async () => {
+    const user = userEvent.setup();
+
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Ada Lovelace" }));
+
+    expect(screen.getByRole("heading", { name: "Edit contact" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toHaveValue("Ada Lovelace");
+  });
+
+  it("requires confirmation before deleting from the list", async () => {
+    const user = userEvent.setup();
+
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Ada Lovelace" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Delete Ada Lovelace?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This contact will be removed from Bat Phone. Historical calls will remain in your call history.",
+      ),
+    ).toBeInTheDocument();
+    expect(deleteContact).not.toHaveBeenCalled();
+  });
+
+  it("cancels list deletion without removing the contact", async () => {
+    const user = userEvent.setup();
+
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Ada Lovelace" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Delete Ada Lovelace?" }),
+    ).not.toBeInTheDocument();
+    expect(deleteContact).not.toHaveBeenCalled();
+  });
+
+  it("deletes a contact from the list after confirmation", async () => {
     const user = userEvent.setup();
     vi.mocked(deleteContact).mockResolvedValue({
       success: true,
@@ -120,7 +170,73 @@ describe("ContactManager", () => {
     render(<ContactManager initialContacts={[existingContact]} />);
 
     await user.click(
-      screen.getByRole("button", { name: /Ada Lovelace/ }),
+      screen.getByRole("button", { name: "Delete Ada Lovelace" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Delete contact" }));
+
+    expect(deleteContact).toHaveBeenCalledWith(existingContact.id);
+    expect(await screen.findByText("No contacts yet")).toBeInTheDocument();
+    expect(screen.queryByText("Ada Lovelace")).not.toBeInTheDocument();
+  });
+
+  it("does not open edit when Delete is tapped", async () => {
+    const user = userEvent.setup();
+
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Delete Ada Lovelace" }),
+    );
+
+    expect(
+      screen.queryByRole("heading", { name: "Edit contact" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows contact action tooltips", () => {
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    expect(
+      screen.getByRole("tooltip", { name: "Add a new contact" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tooltip", { name: "Edit Ada Lovelace" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tooltip", { name: "Delete Ada Lovelace" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows edit form action tooltips", async () => {
+    const user = userEvent.setup();
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(screen.getByRole("button", { name: "Edit Ada Lovelace" }));
+
+    expect(
+      screen.getByRole("tooltip", { name: "Save contact changes" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tooltip", { name: "Cancel editing" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tooltip", { name: "Delete this contact" }),
+    ).toBeInTheDocument();
+  });
+
+  it("deletes an existing contact from the edit form", async () => {
+    const user = userEvent.setup();
+    vi.mocked(deleteContact).mockResolvedValue({
+      success: true,
+      data: undefined,
+    });
+
+    render(<ContactManager initialContacts={[existingContact]} />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Ada Lovelace (212) 555-0199",
+      }),
     );
     await user.click(screen.getByRole("button", { name: "Delete contact" }));
 

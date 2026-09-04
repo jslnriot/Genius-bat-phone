@@ -2,21 +2,40 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
-  const query = {
+  const callsQuery = {
     eq: vi.fn(),
     maybeSingle: vi.fn(),
   };
-  query.eq.mockReturnValue(query);
+  callsQuery.eq.mockReturnValue(callsQuery);
+
+  const profilesQuery = {
+    eq: vi.fn(),
+    maybeSingle: vi.fn(),
+  };
+  profilesQuery.eq.mockReturnValue(profilesQuery);
 
   return {
     authGetUser: vi.fn(),
-    from: vi.fn(() => ({
-      select: vi.fn(() => query),
-    })),
+    callsQuery,
+    from: vi.fn((table: string) => {
+      if (table === "calls") {
+        return {
+          select: vi.fn(() => mocks.callsQuery),
+        };
+      }
+
+      if (table === "profiles") {
+        return {
+          select: vi.fn(() => mocks.profilesQuery),
+        };
+      }
+
+      throw new Error(`Unexpected table: ${table}`);
+    }),
     notFound: vi.fn(() => {
       throw new Error("not-found");
     }),
-    query,
+    profilesQuery,
   };
 });
 
@@ -38,9 +57,14 @@ import CallDetailPage from "./page";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.query.eq.mockReturnValue(mocks.query);
+  mocks.callsQuery.eq.mockReturnValue(mocks.callsQuery);
+  mocks.profilesQuery.eq.mockReturnValue(mocks.profilesQuery);
   mocks.authGetUser.mockResolvedValue({
     data: { user: { id: "user-1" } },
+  });
+  mocks.profilesQuery.maybeSingle.mockResolvedValue({
+    data: { phone_number: "+13105550123" },
+    error: null,
   });
 });
 
@@ -56,7 +80,7 @@ describe("CallDetailPage", () => {
   });
 
   it("renders a call returned through the authenticated owner query", async () => {
-    mocks.query.maybeSingle.mockResolvedValue({
+    mocks.callsQuery.maybeSingle.mockResolvedValue({
       data: {
         id: "call-1",
         contact_name_snapshot: "James",
@@ -81,12 +105,14 @@ describe("CallDetailPage", () => {
     expect(
       screen.getByRole("heading", { name: "Call with James" }),
     ).toBeInTheDocument();
-    expect(mocks.query.eq).toHaveBeenCalledWith("id", "call-1");
-    expect(mocks.query.eq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mocks.callsQuery.eq).toHaveBeenCalledWith("id", "call-1");
+    expect(mocks.callsQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(screen.getByText(/From:/)).toBeInTheDocument();
+    expect(screen.getByText("(310) 555-0123")).toBeInTheDocument();
   });
 
   it("renders a call while transcription is still in progress", async () => {
-    mocks.query.maybeSingle.mockResolvedValue({
+    mocks.callsQuery.maybeSingle.mockResolvedValue({
       data: {
         id: "call-1",
         contact_name_snapshot: "James",
@@ -115,7 +141,7 @@ describe("CallDetailPage", () => {
   });
 
   it("returns not found when RLS hides another user's call", async () => {
-    mocks.query.maybeSingle.mockResolvedValue({ data: null, error: null });
+    mocks.callsQuery.maybeSingle.mockResolvedValue({ data: null, error: null });
 
     await expect(
       CallDetailPage({
@@ -124,6 +150,6 @@ describe("CallDetailPage", () => {
     ).rejects.toThrow("not-found");
 
     expect(mocks.notFound).toHaveBeenCalled();
-    expect(mocks.query.eq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mocks.callsQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
   });
 });

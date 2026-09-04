@@ -91,4 +91,30 @@ describe("GET /api/calls/[callId]/recording", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(await response.text()).toBe("mp3 data");
   });
+
+  it("returns attachment disposition when download is requested", async () => {
+    mocks.authGetUser.mockResolvedValue({
+      data: { user: { id: "user-1" } },
+    });
+    mocks.query.maybeSingle.mockResolvedValue({
+      data: { recording_sid: "REtest" },
+      error: null,
+    });
+    vi.mocked(globalThis.fetch).mockResolvedValue(
+      new Response("mp3 data", {
+        status: 200,
+        headers: { "content-type": "audio/mpeg" },
+      }),
+    );
+
+    const response = await GET(
+      new Request("http://localhost/api/calls/call-1/recording?download=1"),
+      context,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-disposition")).toBe(
+      'attachment; filename="bat-phone-call-1.mp3"',
+    );
+  });
 });

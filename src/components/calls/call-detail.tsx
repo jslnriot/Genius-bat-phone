@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, FileText, Mic } from "lucide-react";
+import { ArrowLeft, Download, Mic } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   formatCallDetailTime,
@@ -10,7 +10,24 @@ import {
   type CallRecord,
 } from "@/lib/calls";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
+import { Tooltip } from "@/components/ui/tooltip";
 import { CallDelete } from "@/components/calls/call-delete";
+import { TranscriptPanel } from "@/components/calls/transcript-panel";
+
+function CallDetailLine({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <p className="text-base leading-6 text-[var(--color-secondary-text)]">
+      <span className="font-medium text-[var(--color-primary)]">{label}:</span>{" "}
+      {value}
+    </p>
+  );
+}
 
 function Transcript({ call }: { call: CallRecord }) {
   if (
@@ -70,8 +87,15 @@ function Transcript({ call }: { call: CallRecord }) {
   );
 }
 
-export function CallDetail({ call }: { call: CallRecord }) {
+export function CallDetail({
+  call,
+  callerPhoneNumber,
+}: {
+  call: CallRecord;
+  callerPhoneNumber?: string | null;
+}) {
   const status = getCallStatus(call);
+  const duration = getCallDuration(call);
 
   return (
     <div className="flex flex-col gap-8">
@@ -81,25 +105,44 @@ export function CallDetail({ call }: { call: CallRecord }) {
           className="-ml-2 flex min-h-11 w-fit items-center gap-2 rounded-md px-2 text-sm font-medium text-[var(--color-action)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-action)]"
         >
           <ArrowLeft aria-hidden="true" size={18} />
-          Calls
+          Return to calls
         </Link>
         <div className="space-y-2">
           <h1 className="break-words text-[28px] font-bold leading-[34px] text-[var(--color-primary)]">
             Call with {call.contact_name_snapshot ?? "Unknown contact"}
           </h1>
-          <p className="text-base text-[var(--color-secondary-text)]">
-            {formatCallDetailTime(call.start_time)}
-          </p>
-          <div className="flex flex-wrap items-center gap-x-1 text-sm text-[var(--color-secondary-text)]">
-            <span>
-              {call.destination_number
-                ? e164ToDisplayPhone(call.destination_number)
-                : "Number unavailable"}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>{formatCallDuration(getCallDuration(call))}</span>
+          <div className="space-y-1.5 pt-1">
+            <CallDetailLine
+              label="Call placed"
+              value={formatCallDetailTime(call.start_time)}
+            />
+            <CallDetailLine
+              label="From"
+              value={
+                callerPhoneNumber
+                  ? e164ToDisplayPhone(callerPhoneNumber)
+                  : "Your calling number is unavailable"
+              }
+            />
+            <CallDetailLine
+              label="To"
+              value={
+                call.destination_number
+                  ? e164ToDisplayPhone(call.destination_number)
+                  : "Number unavailable"
+              }
+            />
+            <CallDetailLine
+              label="Duration"
+              value={formatCallDuration(duration)}
+            />
+            <div className="flex flex-wrap items-center gap-2 text-base leading-6">
+              <span className="font-medium text-[var(--color-primary)]">
+                Status:
+              </span>
+              <Badge variant={status.variant}>{status.label}</Badge>
+            </div>
           </div>
-          <Badge variant={status.variant}>{status.label}</Badge>
         </div>
       </header>
 
@@ -112,15 +155,26 @@ export function CallDetail({ call }: { call: CallRecord }) {
           Recording
         </h2>
         {call.recording_sid ? (
-          <audio
-            aria-label="Call recording"
-            controls
-            preload="metadata"
-            className="block h-14 w-full max-w-full"
-            src={`/api/calls/${encodeURIComponent(call.id)}/recording`}
-          >
-            Your browser does not support audio playback.
-          </audio>
+          <div className="space-y-3">
+            <audio
+              aria-label="Call recording"
+              controls
+              preload="metadata"
+              className="block h-14 w-full max-w-full"
+              src={`/api/calls/${encodeURIComponent(call.id)}/recording`}
+            >
+              Your browser does not support audio playback.
+            </audio>
+            <Tooltip label="Download recording" className="w-full">
+              <a
+                href={`/api/calls/${encodeURIComponent(call.id)}/recording?download=1`}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-(--radius-button) border border-border bg-white text-[15px] font-semibold text-primary transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+              >
+                <Download aria-hidden="true" size={20} />
+                Download recording
+              </a>
+            </Tooltip>
+          </div>
         ) : (
           <p className="text-base text-[var(--color-secondary-text)]">
             No recording is available for this call.
@@ -128,19 +182,13 @@ export function CallDetail({ call }: { call: CallRecord }) {
         )}
       </section>
 
-      <section
-        aria-labelledby="transcript-heading"
-        className="space-y-4 border-t border-[var(--color-border)] pt-6"
+      <TranscriptPanel
+        copyText={
+          call.transcription_status === "completed" ? call.transcript : null
+        }
       >
-        <h2
-          id="transcript-heading"
-          className="flex items-center gap-2 text-xl font-semibold leading-7 text-[var(--color-primary)]"
-        >
-          <FileText aria-hidden="true" size={20} />
-          Transcript
-        </h2>
         <Transcript call={call} />
-      </section>
+      </TranscriptPanel>
 
       <CallDelete callId={call.id} />
     </div>

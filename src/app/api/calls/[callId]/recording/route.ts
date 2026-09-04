@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 export const runtime = "nodejs";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ callId: string }> },
 ) {
   // Proxy recordings through Bat Phone so the browser never needs Twilio media
@@ -58,9 +58,13 @@ export async function GET(
       });
     }
 
+    const download = new URL(request.url).searchParams.get("download") === "1";
+
     const headers = new Headers({
       "Cache-Control": "private, no-store",
-      "Content-Disposition": `inline; filename="bat-phone-${callId}.mp3"`,
+      "Content-Disposition": download
+        ? `attachment; filename="bat-phone-${callId}.mp3"`
+        : `inline; filename="bat-phone-${callId}.mp3"`,
       "Content-Type": "audio/mpeg",
     });
     const contentLength = recording.headers.get("content-length");
