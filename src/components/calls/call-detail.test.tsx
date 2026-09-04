@@ -164,4 +164,12 @@ describe("CallDetail", () => {
     expect(screen.getByText("Hello.")).toBeInTheDocument();
     expect(container.querySelector("audio")).toBeInTheDocument();
   });
+
+  it("includes a delete call action below the transcript", () => {
+    render(<CallDetail call={call} />);
+
+    expect(
+      screen.getByRole("button", { name: "Delete call" }),
+    ).toBeInTheDocument();
+  });
 });

@@ -10,6 +10,7 @@ import {
   type CallRecord,
 } from "@/lib/calls";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
+import { CallDelete } from "@/components/calls/call-delete";
 
 function Transcript({ call }: { call: CallRecord }) {
   if (
@@ -140,6 +141,8 @@ export function CallDetail({ call }: { call: CallRecord }) {
         </h2>
         <Transcript call={call} />
       </section>
+
+      <CallDelete callId={call.id} />
     </div>
   );
 }
