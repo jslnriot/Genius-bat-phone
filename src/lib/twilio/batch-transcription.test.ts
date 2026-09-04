@@ -225,6 +225,29 @@ describe("Batch Transcription callbacks", () => {
     );
   });
 
+  it("marks transcription failed when completed callback has no usable sentences", async () => {
+    const { repository, sender } = dependencies();
+
+    await handleTranscriptionCallback(
+      {
+        id: "job-1",
+        sourceId: call.recording_sid!,
+        status: "completed",
+        sentences: [{ text: "   " }],
+      },
+      { ...call, transcription_status: "processing" },
+      repository,
+      sender,
+    );
+
+    expect(repository.storeCompletedTranscription).not.toHaveBeenCalled();
+    expect(repository.markTranscriptionFailed).toHaveBeenCalledWith(
+      call.id,
+      "job-1",
+    );
+    expect(sender.send).toHaveBeenCalledOnce();
+  });
+
   it("does not resend email for a duplicate completed callback", async () => {
     const { repository, sender } = dependencies();
 

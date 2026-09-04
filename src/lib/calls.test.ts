@@ -27,8 +27,31 @@ describe("call presentation", () => {
       { status: "failed", transcript: null, transcription_status: null },
       "Failed",
     ],
+    [{ status: "busy", transcript: null, transcription_status: null }, "Busy"],
+    [
+      { status: "canceled", transcript: null, transcription_status: null },
+      "Canceled",
+    ],
+    [
+      { status: "no-answer", transcript: null, transcription_status: null },
+      "No answer",
+    ],
+    [
+      { status: "in_progress", transcript: null, transcription_status: null },
+      "Calling",
+    ],
   ])("maps existing call state to %s", (call, expected) => {
     expect(getCallStatus(call).label).toBe(expected);
+  });
+
+  it("prefers terminal dial outcomes over transcription state", () => {
+    expect(
+      getCallStatus({
+        status: "busy",
+        transcript: null,
+        transcription_status: "pending",
+      }).label,
+    ).toBe("Busy");
   });
 
   it("uses concise readable durations", () => {

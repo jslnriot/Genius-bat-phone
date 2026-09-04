@@ -53,4 +53,29 @@ describe("CallDetail", () => {
     ).toBeInTheDocument();
     expect(container.querySelector("audio")).toBeInTheDocument();
   });
+
+  it("shows failed dial outcomes without a recording player", () => {
+    const { container } = render(
+      <CallDetail
+        call={{
+          ...call,
+          duration: 0,
+          recording_sid: null,
+          recording_duration: null,
+          status: "no-answer",
+          transcript: null,
+          transcription_status: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("No answer")).toBeInTheDocument();
+    expect(
+      screen.getByText("No recording is available for this call."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("No transcript was created for this call."),
+    ).toBeInTheDocument();
+    expect(container.querySelector("audio")).not.toBeInTheDocument();
+  });
 });

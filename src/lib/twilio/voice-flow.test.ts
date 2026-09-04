@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import type { MatchableContact } from "./contact-matching";
 import type { TelephonyRepository } from "./telephony-repository";
-import { incomingCallTwiml, resolveContactTwiml } from "./voice-flow";
+import {
+  dialCompleteTwiml,
+  incomingCallTwiml,
+  resolveContactTwiml,
+} from "./voice-flow";
 
 const profile = { id: "9fd1a99e-7ff7-4a09-91d0-bdbf50a6f76a" };
 const ada: MatchableContact = {
@@ -215,5 +219,18 @@ describe("Twilio voice flow", () => {
     expect(createCallBeforeDial).not.toHaveBeenCalled();
     expect(xml).toContain('action="/api/twilio/resolve-contact?attempt=1"');
     expect(xml).not.toContain("<Dial");
+  });
+});
+
+describe("dialCompleteTwiml", () => {
+  it.each([
+    ["busy", "That contact is busy."],
+    ["canceled", "The call was canceled."],
+    ["completed", "Your call has ended."],
+    ["failed", "The call could not be completed."],
+    ["no-answer", "That contact did not answer."],
+  ])("returns a caller-facing message for %s", (status, message) => {
+    expect(dialCompleteTwiml(status)).toContain(message);
+    expect(dialCompleteTwiml(status)).toContain("<Hangup");
   });
 });
