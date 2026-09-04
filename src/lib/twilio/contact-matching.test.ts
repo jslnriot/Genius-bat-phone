@@ -51,7 +51,7 @@ describe("contact name matching", () => {
     });
   });
 
-  it("rejects ambiguous and low-confidence fuzzy matches", () => {
+  it("rejects ambiguous and non-matching names", () => {
     expect(
       matchContactByName("Alexande", [
         contact("1", "Alexander"),

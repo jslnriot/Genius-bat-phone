@@ -40,9 +40,15 @@ describe("Twilio voice flow", () => {
 
   it("rejects an unknown caller with valid TwiML", async () => {
     const log = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const listContacts = vi.fn(async () => [ada]);
+    const createCallBeforeDial = vi.fn(async (input) => input);
     const xml = await incomingCallTwiml(
       "+14165550100",
-      repository({ findProfileByPhone: async () => null }),
+      repository({
+        createCallBeforeDial,
+        findProfileByPhone: async () => null,
+        listContacts,
+      }),
     );
 
     expect(xml).toContain("<Response>");
@@ -51,6 +57,8 @@ describe("Twilio voice flow", () => {
     );
     expect(xml).toContain("<Hangup");
     expect(xml).not.toContain("<Gather");
+    expect(listContacts).not.toHaveBeenCalled();
+    expect(createCallBeforeDial).not.toHaveBeenCalled();
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining('"event":"twilio.unknown_caller_rejected"'),
     );
@@ -129,5 +137,83 @@ describe("Twilio voice flow", () => {
     );
     expect(xml).toContain('action="/api/twilio/dial-complete"');
     expect(xml).toContain(ada.phone_number);
+  });
+
+  it("dials the contact selected by DTMF", async () => {
+    const createCallBeforeDial = vi.fn(async (input) => input);
+    const xml = await resolveContactTwiml(
+      {
+        attempt: 0,
+        callSid: "CA11111111111111111111111111111111",
+        digits: "1",
+        from: "+14165550100",
+        twilioPhoneNumber: "+12892782417",
+      },
+      repository({ createCallBeforeDial }),
+    );
+
+    expect(createCallBeforeDial).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contact_id: ada.id,
+        contact_name_snapshot: ada.name,
+        destination_number: ada.phone_number,
+        status: "in_progress",
+        twilio_call_sid: "CA11111111111111111111111111111111",
+        user_id: profile.id,
+      }),
+    );
+    expect(xml).toContain("<Dial");
+    expect(xml).toContain("Calling Ada Lovelace.");
+  });
+
+  it("retries when DTMF is invalid or out of range instead of dialing", async () => {
+    const createCallBeforeDial = vi.fn(async (input) => input);
+
+    for (const digits of ["0", "2"]) {
+      createCallBeforeDial.mockClear();
+      const xml = await resolveContactTwiml(
+        {
+          attempt: 0,
+          callSid: "CA11111111111111111111111111111111",
+          digits,
+          from: "+14165550100",
+          twilioPhoneNumber: "+12892782417",
+        },
+        repository({ createCallBeforeDial }),
+      );
+
+      expect(createCallBeforeDial).not.toHaveBeenCalled();
+      expect(xml).toContain(
+        'action="/api/twilio/resolve-contact?attempt=1"',
+      );
+      expect(xml).not.toContain("<Dial");
+    }
+  });
+
+  it("rejects low-confidence fuzzy speech and retries", async () => {
+    const createCallBeforeDial = vi.fn(async (input) => input);
+    const katherine: MatchableContact = {
+      ...ada,
+      id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      name: "Katherine Johnson",
+    };
+    const xml = await resolveContactTwiml(
+      {
+        attempt: 0,
+        callSid: "CA11111111111111111111111111111111",
+        from: "+14165550100",
+        speechConfidence: 0.5,
+        speechResult: "Katherin Johnson",
+        twilioPhoneNumber: "+12892782417",
+      },
+      repository({
+        createCallBeforeDial,
+        listContacts: async () => [katherine],
+      }),
+    );
+
+    expect(createCallBeforeDial).not.toHaveBeenCalled();
+    expect(xml).toContain('action="/api/twilio/resolve-contact?attempt=1"');
+    expect(xml).not.toContain("<Dial");
   });
 });
