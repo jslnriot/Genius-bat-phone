@@ -134,17 +134,28 @@ Production is hosted at [https://genius-bat-phone.vercel.app](https://genius-bat
 
 ## GitHub Codespaces
 
-Codespaces is intended to prove that the repository boots cleanly from a fresh environment. The dev container installs Node.js 24.10.0, runs `npm ci`, and forwards port 3000. Production credentials are intentionally not committed or shared.
+The repository is configured to start cleanly in GitHub Codespaces.
 
-`.env.example` documents the required external-service configuration. A reviewer who wants to configure the integrations independently should use their own Supabase, Twilio, and Resend credentials. The recorded demo and the Vercel deployment demonstrate the fully configured end-to-end system.
+The dev container:
+- installs Node.js 24.10.0
+- runs `npm ci`
+- forwards port 3000
 
-Start the app with:
+External integrations require the environment variables documented in
+`.env.example`.
+
+Production credentials are intentionally not included or shared. A reviewer
+who wants to configure the complete integration locally can supply their own
+Supabase, Twilio, and Resend credentials.
+
+The recorded demo and live Vercel deployment demonstrate the fully configured
+end-to-end application.
+
+Start the application with:
 
 ```bash
 npm run dev
 ```
-
-If an existing codespace predates the dev-container configuration, rebuild its container.
 
 ## Supabase Auth URL configuration
 
