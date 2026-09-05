@@ -2,15 +2,16 @@
 
 Take-home full-stack project for Genius: an AI-assisted employee calling tool.
 
+## Review
+
+- Live application: [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
+- Recorded demo: PLACEHOLDER_DEMO_URL
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Source map: [src/README.md](src/README.md)
+
+The Vercel deployment is the configured demonstration environment. Authentication is still required. Supabase, Twilio, and Resend are already wired there; the recorded demo shows the same end-to-end system.
+
 ## Quick Start
-
-### Live application
-
-Production demo: [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
-
-- This is the deployed demonstration environment.
-- Authentication is still required before using the app.
-- Supabase, Twilio, and Resend are already configured there.
 
 ### Local development
 
@@ -26,13 +27,15 @@ For Supabase, Twilio, Resend, and OAuth provider details, use the setup sections
 
 ### GitHub Codespaces
 
+Codespaces is intended to prove that the repository boots cleanly from a fresh environment. The devcontainer installs dependencies (`npm ci` via `postCreateCommand`) and forwards port `3000`. Production credentials are intentionally not committed or shared.
+
 1. Create or open a Codespace for the repository.
-2. Repository-scoped Codespaces secrets are injected as environment variables.
-3. The dev container installs dependencies with `npm ci`.
+2. The dev container installs dependencies with `npm ci`.
+3. Copy `.env.example` to `.env.local` if you are configuring integrations yourself.
 4. Run `npm run dev`.
 5. Open forwarded port `3000`.
 
-This repository currently forwards port `3000` and runs `npm ci` via `postCreateCommand`. If a reviewer does not have access to the repository's Codespaces secrets, they will need the same environment values supplied another way.
+`.env.example` documents the required external-service configuration. A reviewer who wants to configure the integrations independently should use their own Supabase, Twilio, and Resend credentials. The recorded demo and the Vercel deployment demonstrate the fully configured end-to-end system.
 
 ### Validation
 
@@ -60,26 +63,42 @@ npm run lint
 | Telephony | Twilio Programmable Voice, TwiML, dual-channel recording on `<Dial>` | Twilio drives the inbound number, prompts, bridging, and callbacks |
 | Transcription | Twilio Batch Transcription, Twilio-managed transcription configuration, Deepgram Nova-3 configured inside Twilio | The app submits `RecordingSid` jobs to Twilio and does not call Deepgram directly |
 | Email | Resend | Sends transcript or fallback post-call email to the initiating employee |
-| Hosting / reproducibility | Vercel production deployment, GitHub Codespaces dev container | Codespaces is documented for reviewer reproducibility |
+| Hosting / reproducibility | Vercel production deployment, GitHub Codespaces dev container | Codespaces proves a clean boot from a fresh environment; it does not share production secrets |
 | Testing / quality | Vitest 4.1.11, React Testing Library 16.3.3, TypeScript checks, ESLint 9.16.0 | `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run lint` |
 
 ## Environment variables
 
-Bat Phone requires these variables:
+Copy `.env.example` to `.env.local` when setting up a new environment. Never commit populated environment files or credentials. Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. `SUPABASE_SECRET_KEY`, all `TWILIO_*` values, and `RESEND_API_KEY` are server-only.
 
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-SUPABASE_SECRET_KEY
-TWILIO_ACCOUNT_SID
-TWILIO_AUTH_TOKEN
-TWILIO_PHONE_NUMBER
-TWILIO_TRANSCRIPTION_CONFIGURATION_ID
-RESEND_API_KEY
-RESEND_FROM_EMAIL
-```
+### Supabase
 
-Copy `.env.example` when setting up a new environment, but never commit populated environment files or credentials. Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. `SUPABASE_SECRET_KEY` and all `TWILIO_*` values are server-only and must only be configured in trusted local, Codespaces, and Vercel environments.
+From the Supabase project: **Dashboard → Project Settings → API**.
+
+| Variable | Where the value comes from |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable (legacy anon) API key |
+| `SUPABASE_SECRET_KEY` | Secret (service role) API key |
+
+### Twilio
+
+From the Twilio Console.
+
+| Variable | Where the value comes from |
+| --- | --- |
+| `TWILIO_ACCOUNT_SID` | Account SID on the Twilio Console account dashboard |
+| `TWILIO_AUTH_TOKEN` | Auth Token on the same account dashboard |
+| `TWILIO_PHONE_NUMBER` | The purchased Voice number used as the Bat Phone inbound number |
+| `TWILIO_TRANSCRIPTION_CONFIGURATION_ID` | ID returned when creating a Twilio Batch Transcription Configuration (a string beginning with `voice_transcriptionconfiguration_`) |
+
+### Resend
+
+From the Resend dashboard.
+
+| Variable | Where the value comes from |
+| --- | --- |
+| `RESEND_API_KEY` | API Keys |
+| `RESEND_FROM_EMAIL` | A sender address on a verified Resend domain |
 
 ## Local development
 
@@ -115,9 +134,11 @@ Production is hosted at [https://genius-bat-phone.vercel.app](https://genius-bat
 
 ## GitHub Codespaces
 
-Add all variables listed in `.env.example` as GitHub Codespaces repository secrets. New codespaces receive them as environment variables.
+Codespaces is intended to prove that the repository boots cleanly from a fresh environment. The dev container installs Node.js 24.10.0, runs `npm ci`, and forwards port 3000. Production credentials are intentionally not committed or shared.
 
-The dev container installs Node.js 24.10.0, runs `npm ci`, and forwards port 3000 automatically. Start the app with:
+`.env.example` documents the required external-service configuration. A reviewer who wants to configure the integrations independently should use their own Supabase, Twilio, and Resend credentials. The recorded demo and the Vercel deployment demonstrate the fully configured end-to-end system.
+
+Start the app with:
 
 ```bash
 npm run dev

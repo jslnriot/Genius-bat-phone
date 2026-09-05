@@ -35,6 +35,31 @@ flowchart TD
     I --> J[Initiating employee]
 ```
 
+End-to-end call sequence:
+
+```mermaid
+sequenceDiagram
+    actor Employee
+    participant Twilio as Twilio Voice
+    participant App as Bat Phone webhook
+    participant DB as Supabase
+    participant Batch as Twilio Batch Transcription
+    participant Resend
+
+    Employee->>Twilio: inbound call
+    Twilio->>App: incoming webhook
+    App->>DB: caller / contact lookup
+    Twilio->>App: speech / DTMF selection
+    App->>DB: create call row
+    App-->>Twilio: Dial / bridge
+    Twilio->>App: recording callback
+    App->>Batch: submit Recording SID
+    Batch->>App: transcription callback
+    App->>DB: store transcript / states
+    App->>Resend: send transcript or fallback
+    Resend->>Employee: email
+```
+
 ## 4. User / browser flow
 
 The browser experience starts in `src/app/account/page.tsx`. Unauthenticated users land on the account screen and begin Google sign-in through Supabase Auth. The OAuth callback is handled in `src/app/auth/callback/route.ts`, which exchanges the code for a Supabase session, restricts any `next` return path to safe internal routes, and then sends the user either to onboarding or to the main application.
@@ -162,9 +187,42 @@ An OpenAPI contract is not necessary yet because these routes are currently cons
 
 ## 11. Important tradeoffs / POC boundaries
 
-- The current implementation keeps UI, server actions, and provider callbacks in one Next.js application instead of splitting into separate frontend and backend services.
-- Contact matching is deterministic and rules-based, not LLM-driven.
-- Transcription is asynchronous batch processing after the call, not realtime captioning during the call.
-- Recording playback uses the browser's native audio controls rather than a custom waveform or media player.
-- The call history UI reflects the current persisted state and is refreshed by page navigation / rendering, not by websockets or background live updates.
-- There is no separate queue or worker tier yet; the webhook handlers perform the bounded retry logic directly.
+**One Next.js application for the POC.** I kept the UI, Server Actions, and provider callbacks in a single Next.js app so auth, TwiML, and post-call writes share one deployable and one session boundary. I would split only if webhook reliability, deploy cadence, or team ownership diverged from the browser product.
+
+**Deterministic contact resolution over an LLM.** I chose exact match, then case-insensitive match, then constrained fuzzy matching, plus DTMF `1` through `9`, because inbound routing has to be predictable and explainable. An LLM would add latency, cost, and misdial risk on a voice path that cannot ask the caller to debug a model. I would revisit this if a larger contact set started defeating rules-based matching, or if callers needed to resolve ambiguous phrases rather than names.
+
+**Batch transcription instead of realtime transcription.** I submit the Twilio `RecordingSid` after the recording completes so the live call stays a gather-and-dial TwiML flow. I would move to realtime transcription if the employee needed live captions or in-call assistance.
+
+**Native browser audio for recording playback.** I proxy the recording and let the platform audio control play it. A custom player would be worth the complexity only if we needed consistent chrome, waveforms, or clip-level controls across browsers.
+
+**Navigation and refresh for call status, not live push.** History and detail pages read persisted Supabase state on render. That is enough while post-call work finishes after the call and the dataset stays small. I would add polling or realtime subscriptions if operators needed to watch transcription or email progress without leaving the page.
+
+**Retries in the webhook path instead of a worker queue.** Bounded transcription and email retries run in the request that received the callback. That is the smallest design that still claims work atomically. I would extract a durable queue when webhook lifetime, isolated retries, or lost-callback reconciliation became operational requirements.
+
+## 12. Scaling approach
+
+I would keep the current Next.js modular monolith first. Pages, Server Actions, Twilio handlers, and Resend already live in separate modules inside one application. A rising user count by itself is not a reason to split services: the expensive work is per-call provider I/O, not a shared in-process bottleneck that a second repo would fix.
+
+The first extraction I would make is asynchronous post-call processing. Recording persistence, transcription submission, transcription callbacks, and email currently share the webhook request lifetime. A durable queue plus a worker tier would let the Twilio handlers persist state and acknowledge quickly, retry independently of HTTP timeouts, and later support reconciliation for lost callbacks. I would do that when transcription or email work starts failing because of execution limits, or when retries need to survive a crashed request.
+
+Telephony and webhook handling is the next natural boundary, but only if deployment, reliability, or team ownership diverge from the employee UI. Voice already has a different trust model (Twilio signatures, service-role writes) than the browser. I would split that surface if it needed its own region, SLA, or on-call owner. Until then, one deployable keeps signature validation, TwiML, and persistence in one place.
+
+I would add cursor-based call-history pagination when an employee's `calls` list is large enough that an unbounded select and render becomes slow. The current POC dataset does not justify it.
+
+I would add stronger observability — request tracing around `twilio_call_sid` / `recording_sid`, plus provider metrics for webhook latency, transcription job duration, and Resend success or failure — when someone is operating this in production and needs to diagnose a failed call without reading application logs by hand.
+
+I would scale Supabase/Postgres and Vercel from measured concurrency and load: inbound webhook bursts, recording-proxy bandwidth, and database connection count. I would not pick an arbitrary user ceiling in advance.
+
+Any later service boundary should keep the current idempotency and correlation IDs. `twilio_call_sid` remains the call-row key, `recording_sid` remains the recording/transcription correlation key, and transcription/email claims stay atomic so duplicate Twilio delivery remains safe after a split.
+
+## 13. POC limitations
+
+These are deliberate POC boundaries, not unfinished product work:
+
+- Call history has no pagination.
+- UI status updates appear on navigation or refresh rather than realtime push.
+- Twilio Batch Transcription is asynchronous and currently a provider beta dependency.
+- Transcription and email retries happen in the request processing path rather than a durable background worker.
+- If an expected provider callback is permanently lost, there is no reconciliation worker today.
+- Native browser audio controls vary by platform.
+- Production enterprise concerns such as configurable retention, stronger audit trails, organization/role administration, and richer operational monitoring are intentionally outside this POC.
