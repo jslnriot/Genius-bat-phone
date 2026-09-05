@@ -1,17 +1,44 @@
 # Bat Phone Architecture
 
+- [Bat Phone Architecture](#bat-phone-architecture)
+  - [1. System overview](#1-system-overview)
+  - [2. Technology choices](#2-technology-choices)
+  - [3. Architecture diagram](#3-architecture-diagram)
+  - [4. User / browser flow](#4-user--browser-flow)
+  - [5. Voice call flow](#5-voice-call-flow)
+  - [6. Post-call pipeline](#6-post-call-pipeline)
+  - [7. Data model](#7-data-model)
+  - [8. Security boundaries](#8-security-boundaries)
+    - [Browser / user trust boundary](#browser--user-trust-boundary)
+    - [Twilio webhook trust boundary](#twilio-webhook-trust-boundary)
+    - [Server-only credential boundary](#server-only-credential-boundary)
+  - [9. Reliability / idempotency](#9-reliability--idempotency)
+  - [10. API / integration surface](#10-api--integration-surface)
+  - [11. Important tradeoffs / POC boundaries](#11-important-tradeoffs--poc-boundaries)
+  - [12. Scaling approach](#12-scaling-approach)
+  - [13. Known Limitations](#13-known-limitations)
+  - [14. Future Considerations](#14-future-considerations)
+  - [15. Endpoints and key files](#15-endpoints-and-key-files)
+    - [HTTP routes](#http-routes)
+    - [Browser pages](#browser-pages)
+    - [Server Actions](#server-actions)
+    - [Key implementation files](#key-implementation-files)
+
 ## 1. System overview
 
-Bat Phone is an internal employee calling tool. A signed-in employee manages contacts in the browser, calls into a Twilio number from their own phone, speaks or keys in the contact they want, and is bridged to that destination. Bat Phone stores the call record in Supabase, proxies recording playback back to the authenticated owner, submits completed recordings to Twilio Batch Transcription, and emails the initiating employee a transcript or fallback notification when post-call processing finishes.
+Bat Phone is an internal employee calling tool. An authenticated employee manages contacts in the browser, calls into a Twilio number from their own phone, speaks or keys in the contact they want, and is bridged to that destination. Bat Phone stores the call record in Supabase, proxies recording playback back to the authenticated owner, submits completed recordings to Twilio Batch Transcription, and emails the initiating employee a transcript or fallback notification when post-call processing finishes.
 
 ## 2. Technology choices
 
-- Next.js 16 App Router, React 19, and TypeScript power both the browser UI and the server-side integration code. The current codebase keeps pages, Server Actions, and webhook handlers in one application.
-- Supabase Auth and Postgres handle employee identity, session management, and application data. RLS is enabled on the application tables so browser-originated reads and writes stay owner-scoped.
-- Twilio Programmable Voice owns the phone number, TwiML execution, call bridging, and webhook delivery.
-- Twilio Batch Transcription handles asynchronous recording transcription. Bat Phone submits Twilio `RecordingSid` values to Twilio and receives a later JSON callback when the job completes or fails.
-- Resend sends the post-call transcript or fallback email to the initiating employee.
-- Vercel hosts the production deployment, and GitHub Codespaces is configured as the reproducible cloud development environment documented in the repo.
+| Technology | Controls |
+| --- | --- |
+| Next.js 16 App Router, React 19, TypeScript | Browser UI and server-side integration. Pages, Server Actions, and webhook handlers live in one application |
+| Supabase Auth and Postgres | Employee identity, session management, and application data. RLS keeps browser-originated reads and writes owner-scoped |
+| Twilio Programmable Voice | The phone number, TwiML execution, call bridging, and webhook delivery |
+| Twilio Batch Transcription | Asynchronous recording transcription. Bat Phone submits Twilio `RecordingSid` values and receives a later JSON callback when the job completes or fails |
+| Resend | The post-call transcript or fallback email to the initiating employee |
+| Vercel | Production hosting |
+| GitHub Codespaces | The reproducible cloud development environment documented in the repo |
 
 ## 3. Architecture diagram
 
@@ -181,7 +208,7 @@ Important model relationships and fields:
 | `POST` | `/api/twilio/transcription` | Validate the raw JSON callback, correlate `sourceId`, store transcript state, and send email | Twilio JSON webhook with signature and raw-body validation |
 | `GET` | `/api/calls/[callId]/recording` | Proxy the call recording back to the authenticated owner | Signed-in browser user, Supabase session, owner check |
 
-Contact and profile mutations are not exposed as REST endpoints. They currently live in authenticated Next.js Server Actions under `src/app/contacts/actions.ts` and `src/app/onboarding/actions.ts`.
+Contact, profile, and call mutations are not exposed as REST endpoints. They currently live in authenticated Next.js Server Actions under `src/app/contacts/actions.ts`, `src/app/onboarding/actions.ts`, and `src/app/calls/actions.ts`.
 
 An OpenAPI contract is not necessary yet because these routes are currently consumed only by Twilio and the first-party Bat Phone UI. It would become more valuable if independent services or third-party clients started consuming the same APIs.
 
@@ -215,14 +242,72 @@ I would scale Supabase/Postgres and Vercel from measured concurrency and load: i
 
 Any later service boundary should keep the current idempotency and correlation IDs. `twilio_call_sid` remains the call-row key, `recording_sid` remains the recording/transcription correlation key, and transcription/email claims stay atomic so duplicate Twilio delivery remains safe after a split.
 
-## 13. POC limitations
+## 13. Known Limitations
 
 These are deliberate POC boundaries, not unfinished product work:
 
-- Call history has no pagination.
-- UI status updates appear on navigation or refresh rather than realtime push.
-- Twilio Batch Transcription is asynchronous and currently a provider beta dependency.
-- Transcription and email retries happen in the request processing path rather than a durable background worker.
-- If an expected provider callback is permanently lost, there is no reconciliation worker today.
-- Native browser audio controls vary by platform.
-- Production enterprise concerns such as configurable retention, stronger audit trails, organization/role administration, and richer operational monitoring are intentionally outside this POC.
+1. Call history has no pagination
+2. UI status updates appear on navigation or refresh rather than realtime push
+3. Twilio Batch Transcription is asynchronous and currently a provider beta dependency
+4. Transcription and email retries happen in the request processing path rather than a durable background worker
+5. If an expected provider callback is permanently lost, there is no reconciliation worker today
+
+## 14. Future Considerations
+
+1. Add notifications when recording is saved and transcription is done
+2. Next.js was used for this POC and should be able to handle a fairly large load of users, however, depending on the full scope of the project and its main intended use, we can consider having a separate back end that includes a microservice architecture. Again, this is dependent on unknowns at the moment and can be considered in the future.
+3. Similarly we are using Twilio built-in tools for speech to text which works fine, but we can revisit once we start getting more load.
+
+## 15. Endpoints and key files
+
+### HTTP routes
+
+| Method | Route | File | Caller |
+| --- | --- | --- | --- |
+| `GET` | `/auth/callback` | `src/app/auth/callback/route.ts` | Supabase Google OAuth redirect |
+| `POST` | `/api/twilio/incoming` | `src/app/api/twilio/incoming/route.ts` | Twilio Voice webhook |
+| `POST` | `/api/twilio/resolve-contact` | `src/app/api/twilio/resolve-contact/route.ts` | Twilio `<Gather>` action |
+| `POST` | `/api/twilio/dial-complete` | `src/app/api/twilio/dial-complete/route.ts` | Twilio `<Dial>` action |
+| `POST` | `/api/twilio/recording` | `src/app/api/twilio/recording/route.ts` | Twilio recording status callback |
+| `POST` | `/api/twilio/transcription` | `src/app/api/twilio/transcription/route.ts` | Twilio Batch Transcription JSON callback |
+| `GET` | `/api/calls/[callId]/recording` | `src/app/api/calls/[callId]/recording/route.ts` | Signed-in browser, recording playback |
+
+### Browser pages
+
+| Route | File | Purpose |
+| --- | --- | --- |
+| `/` | `src/app/page.tsx` | Redirects to `/contacts` |
+| `/account` | `src/app/account/page.tsx` | Sign-in entry and signed-in profile |
+| `/onboarding` | `src/app/onboarding/page.tsx` | First-time caller phone capture |
+| `/contacts` | `src/app/contacts/page.tsx` | Contact list and CRUD |
+| `/calls` | `src/app/calls/page.tsx` | Call history |
+| `/calls/[id]` | `src/app/calls/[id]/page.tsx` | Call detail, recording, transcript |
+
+### Server Actions
+
+Contact and profile writes are not REST endpoints. They live in authenticated Server Actions:
+
+| Action | File | Purpose |
+| --- | --- | --- |
+| `createContact`, `updateContact`, `deleteContact` | `src/app/contacts/actions.ts` | Contact CRUD |
+| `saveProfilePhone` | `src/app/onboarding/actions.ts` | Onboarding and account caller-number save |
+| `deleteCall` | `src/app/calls/actions.ts` | Owner-scoped call delete |
+
+### Key implementation files
+
+| File | Owns |
+| --- | --- |
+| `src/proxy.ts` | Auth guard for `/contacts`, `/calls`, and `/onboarding` |
+| `src/lib/twilio/voice-flow.ts` | TwiML for inbound, gather, dial, and failure paths |
+| `src/lib/twilio/contact-matching.ts` | Deterministic name / DTMF matching |
+| `src/lib/twilio/request-validation.ts` | Twilio signature and raw-body validation |
+| `src/lib/twilio/call-idempotency.ts` | Create-before-dial keyed by `twilio_call_sid` |
+| `src/lib/twilio/telephony-repository.ts` | Service-role writes for voice callbacks |
+| `src/lib/twilio/batch-transcription.ts` | Transcription submit and callback handling |
+| `src/lib/twilio/phase4-repository.ts` | Atomic transcription / email claims |
+| `src/lib/twilio/recording-media.ts` | Server-side Twilio recording fetch |
+| `src/lib/email/call-transcript.ts` | Resend transcript and fallback email |
+| `src/lib/calls.ts` | Shared call record shape and display helpers |
+| `src/utils/supabase/client.ts` | Browser Supabase client |
+| `src/utils/supabase/server.ts` | Cookie / session Supabase client |
+| `src/utils/supabase/admin.ts` | Service-role Supabase client |

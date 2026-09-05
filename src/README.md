@@ -1,6 +1,6 @@
 # Source Map
 
-This file is the developer's map of the Bat Phone source tree. Use `README.md` for setup, `docs/ARCHITECTURE.md` for system behavior, and `PROCESS.md` for the historical implementation journal.
+This file is the developer's map of the Bat Phone source tree. Use `README.md` for setup, `docs/ARCHITECTURE_DESIGN_DOC.md` for system behavior, and `PROCESS.md` for the historical implementation journal.
 
 ## Top-level structure
 

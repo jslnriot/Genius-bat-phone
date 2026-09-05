@@ -6,7 +6,7 @@ Take-home full-stack project for Genius: an AI-assisted employee calling tool.
 
 - Live application: [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
 - Recorded demo: PLACEHOLDER_DEMO_URL
-- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Architecture: [docs/ARCHITECTURE_DESIGN_DOC.md](docs/ARCHITECTURE_DESIGN_DOC.md)
 - Source map: [src/README.md](src/README.md)
 
 The Vercel deployment is the configured demonstration environment. Authentication is still required. Supabase, Twilio, and Resend are already wired there; the recorded demo shows the same end-to-end system.
@@ -49,7 +49,7 @@ npm run lint
 ## How the project is organized
 
 - `README.md`: setup, environment requirements, and the fastest ways to run or review the app.
-- `docs/ARCHITECTURE.md`: how the system works end to end, including auth, voice, transcription, email, and security boundaries.
+- `docs/ARCHITECTURE_DESIGN_DOC.md`: how the system works end to end, including auth, voice, transcription, email, and security boundaries.
 - `src/README.md`: where the implementation lives and which files to open for specific changes.
 - `PROCESS.md`: chronological implementation journal for the build-out and cleanup passes.
 
