@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Pencil, Plus, Trash2, Users } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import {
   deleteContact,
   updateContact,
 } from "@/app/contacts/actions";
+import { ReadyToCall } from "@/components/contacts/ready-to-call";
 import {
   CONTACT_NAME_MAX_LENGTH,
   displayPhoneToE164,
@@ -24,12 +25,16 @@ import {
 
 type ContactManagerProps = {
   initialContacts: ContactRecord[];
+  batPhoneNumber: string;
 };
 
 const destructiveOutlineClassName =
   "min-h-11 w-full border border-error/30 bg-white hover:bg-error/10";
 
-export function ContactManager({ initialContacts }: ContactManagerProps) {
+export function ContactManager({
+  initialContacts,
+  batPhoneNumber,
+}: ContactManagerProps) {
   const [contacts, setContacts] = useState(initialContacts);
   const [editingContact, setEditingContact] = useState<ContactRecord | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -180,17 +185,43 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
   }
 
   const formIsOpen = isAdding || editingContact !== null;
+  const hasContacts = contacts.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
-      {!formIsOpen ? (
+      {hasContacts ? (
+        <ReadyToCall batPhoneNumber={batPhoneNumber} />
+      ) : null}
+
+      {!formIsOpen && !hasContacts ? (
+        <Card className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-base font-semibold leading-6 text-primary">
+              No contacts yet
+            </h2>
+            <p className="text-sm leading-5 text-secondary-text">
+              Add someone you want to reach through Bat Phone.
+            </p>
+          </div>
+          <Tooltip label="Add a new contact" className="w-full">
+            <Button type="button" className="w-full gap-3" onClick={openAddForm}>
+              <Plus aria-hidden="true" size={20} />
+              Add your first contact
+            </Button>
+          </Tooltip>
+        </Card>
+      ) : null}
+
+      {!formIsOpen && hasContacts ? (
         <Tooltip label="Add a new contact" className="w-full">
           <Button type="button" className="w-full gap-3" onClick={openAddForm}>
             <Plus aria-hidden="true" size={20} />
             Add contact
           </Button>
         </Tooltip>
-      ) : (
+      ) : null}
+
+      {formIsOpen ? (
         <Card>
           <form
             className="flex flex-col gap-4"
@@ -306,29 +337,9 @@ export function ContactManager({ initialContacts }: ContactManagerProps) {
             </div>
           </form>
         </Card>
-      )}
-
-      {!formIsOpen && contacts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <div className="bg-muted-background flex h-16 w-16 items-center justify-center rounded-full">
-            <Users
-              aria-hidden="true"
-              size={32}
-              className="text-secondary-text"
-            />
-          </div>
-          <div className="flex flex-col items-center gap-1 text-center">
-            <p className="text-primary text-base font-medium">
-              No contacts yet
-            </p>
-            <p className="text-secondary-text text-sm">
-              Add contacts to start making calls.
-            </p>
-          </div>
-        </div>
       ) : null}
 
-      {!formIsOpen && contacts.length > 0 ? (
+      {!formIsOpen && hasContacts ? (
         <div className="flex flex-col gap-2">
           {contacts.map((contact) =>
             deletingContact?.id === contact.id ? (

@@ -22,6 +22,17 @@ const existingContact: ContactRecord = {
   created_at: "2026-09-01T12:00:00.000Z",
 };
 
+const BAT_PHONE_NUMBER = "+12892782417";
+
+function renderContactManager(initialContacts: ContactRecord[] = []) {
+  return render(
+    <ContactManager
+      initialContacts={initialContacts}
+      batPhoneNumber={BAT_PHONE_NUMBER}
+    />,
+  );
+}
+
 describe("ContactManager", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,9 +53,11 @@ describe("ContactManager", () => {
       data: newContact,
     });
 
-    render(<ContactManager initialContacts={[]} />);
+    renderContactManager();
 
-    await user.click(screen.getByRole("button", { name: "Add contact" }));
+    await user.click(
+      screen.getByRole("button", { name: "Add your first contact" }),
+    );
     await user.type(screen.getByLabelText("Name"), "Ada123");
     await user.type(screen.getByLabelText("Phone number"), "21255");
     await user.click(screen.getByRole("button", { name: "Add contact" }));
@@ -71,6 +84,12 @@ describe("ContactManager", () => {
     );
     expect(await screen.findByText("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Ready to make a call?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "No contacts yet" }),
+    ).not.toBeInTheDocument();
   });
 
   it("loads a saved contact for editing and saves the changes", async () => {
@@ -85,7 +104,7 @@ describe("ContactManager", () => {
       data: updatedContact,
     });
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", {
@@ -115,7 +134,7 @@ describe("ContactManager", () => {
   it("opens edit from the explicit Edit action", async () => {
     const user = userEvent.setup();
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(screen.getByRole("button", { name: "Edit Ada Lovelace" }));
 
@@ -126,7 +145,7 @@ describe("ContactManager", () => {
   it("requires confirmation before deleting from the list", async () => {
     const user = userEvent.setup();
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", { name: "Delete Ada Lovelace" }),
@@ -146,7 +165,7 @@ describe("ContactManager", () => {
   it("cancels list deletion without removing the contact", async () => {
     const user = userEvent.setup();
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", { name: "Delete Ada Lovelace" }),
@@ -167,7 +186,7 @@ describe("ContactManager", () => {
       data: undefined,
     });
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", { name: "Delete Ada Lovelace" }),
@@ -182,7 +201,7 @@ describe("ContactManager", () => {
   it("does not open edit when Delete is tapped", async () => {
     const user = userEvent.setup();
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", { name: "Delete Ada Lovelace" }),
@@ -194,7 +213,7 @@ describe("ContactManager", () => {
   });
 
   it("shows contact action tooltips", () => {
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     expect(
       screen.getByRole("tooltip", { name: "Add a new contact" }),
@@ -209,7 +228,7 @@ describe("ContactManager", () => {
 
   it("shows edit form action tooltips", async () => {
     const user = userEvent.setup();
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(screen.getByRole("button", { name: "Edit Ada Lovelace" }));
 
@@ -231,7 +250,7 @@ describe("ContactManager", () => {
       data: undefined,
     });
 
-    render(<ContactManager initialContacts={[existingContact]} />);
+    renderContactManager([existingContact]);
 
     await user.click(
       screen.getByRole("button", {
@@ -243,5 +262,63 @@ describe("ContactManager", () => {
     expect(deleteContact).toHaveBeenCalledWith(existingContact.id);
     expect(await screen.findByText("No contacts yet")).toBeInTheDocument();
     expect(screen.queryByText("Ada Lovelace")).not.toBeInTheDocument();
+  });
+
+  it("focuses an empty list on creating the first contact", () => {
+    renderContactManager();
+
+    expect(
+      screen.getByRole("heading", { name: "No contacts yet" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Add someone you want to reach through Bat Phone."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add your first contact" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Ready to make a call?" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Copy number" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Call Bat Phone" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows how to call Bat Phone once a contact exists", () => {
+    renderContactManager([existingContact]);
+
+    expect(
+      screen.getByRole("heading", { name: "Ready to make a call?" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("(289) 278-2417")).toBeInTheDocument();
+    expect(
+      screen.getByText("Call Bat Phone from your registered phone:"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("When prompted, say the name of one of your contacts."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy number" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Call Bat Phone" }),
+    ).not.toBeInTheDocument();
+    expect(document.querySelector('a[href^="tel:"]')).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Add contact" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add contact" })).toHaveClass(
+      "bg-[var(--color-action)]",
+    );
+    expect(screen.getByRole("button", { name: "Copy number" })).not.toHaveClass(
+      "bg-[var(--color-action)]",
+    );
+    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "No contacts yet" }),
+    ).not.toBeInTheDocument();
   });
 });

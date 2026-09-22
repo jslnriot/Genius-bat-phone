@@ -49,6 +49,10 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("@/lib/twilio/environment", () => ({
+  getTwilioPhoneNumber: vi.fn(() => "+12892782417"),
+}));
+
 import ContactsPage from "./page";
 
 beforeEach(() => {
@@ -86,5 +90,41 @@ describe("ContactsPage", () => {
       screen.getByRole("heading", { name: "Contacts" }),
     ).toBeInTheDocument();
     expect(mocks.from).toHaveBeenCalledWith("contacts");
+    expect(
+      screen.getByRole("heading", { name: "No contacts yet" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Ready to make a call?" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows the Bat Phone number after a contact exists", async () => {
+    mocks.query.order.mockResolvedValue({
+      data: [
+        {
+          id: "contact-1",
+          name: "Ada Lovelace",
+          phone_number: "+12125550199",
+          created_at: "2026-09-01T12:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+
+    render(await ContactsPage());
+
+    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Ready to make a call?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy number" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Call Bat Phone" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add contact" }),
+    ).toBeInTheDocument();
   });
 });
