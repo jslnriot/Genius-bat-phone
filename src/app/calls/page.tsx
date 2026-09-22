@@ -58,7 +58,7 @@ export default async function CallsPage() {
           />
           <div>
             <p className="font-medium text-primary">
-              Call history is temporarily unavailable.
+              Calls are temporarily unavailable.
             </p>
             <p className="mt-1 text-sm text-secondary-text">
               Please try again in a moment.

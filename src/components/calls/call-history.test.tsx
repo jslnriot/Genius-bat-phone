@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { CallHistory } from "./call-history";
-import type { CallRecord } from "@/lib/calls";
+import { formatCallListTime, type CallRecord } from "@/lib/calls";
 
 const call: CallRecord = {
   id: "call-1",
@@ -26,18 +26,42 @@ describe("CallHistory", () => {
 
     expect(screen.getByText("James")).toBeInTheDocument();
     expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
+    expect(screen.getByText(formatCallListTime(call.start_time))).toBeInTheDocument();
     expect(screen.getByText(/20 sec/)).toBeInTheDocument();
     expect(screen.getByText("Transcript Ready")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/calls/call-1");
+  });
+
+  it("does not badge ordinary completed calls", () => {
+    render(
+      <CallHistory
+        calls={[
+          {
+            ...call,
+            transcript: null,
+            transcription_status: null,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.queryByText("Completed")).not.toBeInTheDocument();
     expect(screen.getByRole("link")).toHaveAttribute("href", "/calls/call-1");
   });
 
   it("renders a useful empty state", () => {
     render(<CallHistory calls={[]} />);
 
-    expect(screen.getByText("No calls yet")).toBeInTheDocument();
     expect(
-      screen.getByText(/Calls you place through Bat Phone/),
+      screen.getByRole("heading", { name: "No calls yet" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("Calls you make through Bat Phone will appear here."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View contacts" })).toHaveAttribute(
+      "href",
+      "/contacts",
+    );
   });
 
   it("shows a transcribing call from the stored snapshot name", () => {

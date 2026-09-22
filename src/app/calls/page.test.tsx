@@ -115,4 +115,34 @@ describe("CallsPage", () => {
     expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
     expect(screen.getByText(/10 sec/)).toBeInTheDocument();
   });
+
+  it("shows a customer-facing empty state", async () => {
+    render(await CallsPage());
+
+    expect(
+      screen.getByRole("heading", { name: "No calls yet" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Calls you make through Bat Phone will appear here."),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a customer-facing error when calls cannot be loaded", async () => {
+    mocks.query.order.mockResolvedValue({
+      data: null,
+      error: { message: "permission denied for table calls" },
+    });
+
+    render(await CallsPage());
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Calls are temporarily unavailable.",
+    );
+    expect(
+      screen.getByText("Please try again in a moment."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/permission denied/i),
+    ).not.toBeInTheDocument();
+  });
 });
