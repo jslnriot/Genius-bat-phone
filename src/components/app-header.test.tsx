@@ -28,5 +28,26 @@ describe("AppHeader", () => {
       "/contacts",
     );
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Account for/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a compact identity control that links to Account", () => {
+    render(
+      <AppHeader
+        homeHref="/contacts"
+        account={{ email: "james@example.com", initials: "JB" }}
+      />,
+    );
+
+    expect(screen.getByText("Bat Phone")).toBeInTheDocument();
+    expect(screen.getByRole("banner", { name: "Bat Phone" }).querySelector("svg")).not.toBeNull();
+    const accountLink = screen.getByRole("link", {
+      name: "Account for james@example.com",
+    });
+    expect(accountLink).toHaveAttribute("href", "/account");
+    expect(accountLink).toHaveTextContent("JB");
+    expect(screen.queryByText("james@example.com")).not.toBeInTheDocument();
   });
 });

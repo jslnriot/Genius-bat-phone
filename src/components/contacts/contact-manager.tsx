@@ -409,7 +409,7 @@ export function ContactManager({
                   <button
                     type="button"
                     aria-label={`Edit ${contact.name}`}
-                    className="text-secondary-text hover:text-primary flex h-11 w-11 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-(--radius-button) text-action transition-colors hover:text-action/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
                     onClick={() => openEditForm(contact)}
                   >
                     <Pencil aria-hidden="true" size={20} />
@@ -419,7 +419,7 @@ export function ContactManager({
                   <button
                     type="button"
                     aria-label={`Delete ${contact.name}`}
-                    className="text-secondary-text hover:text-error mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+                    className="mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-(--radius-button) text-secondary-text transition-colors hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
                     onClick={() => openDeleteConfirmation(contact)}
                   >
                     <Trash2 aria-hidden="true" size={20} />

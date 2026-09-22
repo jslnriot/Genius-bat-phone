@@ -57,6 +57,9 @@ describe("RootLayout", () => {
       screen.queryByRole("link", { name: "Bat Phone home" }),
     ).not.toBeInTheDocument();
     expect(
+      screen.queryByRole("link", { name: /Account for/ }),
+    ).not.toBeInTheDocument();
+    expect(
       screen.queryByRole("navigation", { name: "Primary navigation" }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Contacts" })).not.toBeInTheDocument();
@@ -84,11 +87,17 @@ describe("RootLayout", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contacts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Calls" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Account" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^Account$/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Bat Phone home" })).toHaveAttribute(
       "href",
       "/contacts",
     );
+    const accountIdentity = screen.getByRole("link", {
+      name: "Account for ada@example.com",
+    });
+    expect(accountIdentity).toHaveAttribute("href", "/account");
+    expect(accountIdentity).toHaveTextContent("A");
+    expect(screen.queryByText("ada@example.com")).not.toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Primary navigation" });
     const main = screen.getByRole("main");
     expect(nav.className).not.toMatch(/\bfixed\b/);
@@ -109,6 +118,9 @@ describe("RootLayout", () => {
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Bat Phone home" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Account for/ }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("navigation", { name: "Primary navigation" }),

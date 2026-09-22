@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/app-header";
 import { BottomNav } from "@/components/bottom-nav";
+import { getAccountInitials } from "@/lib/account-initials";
 import { getCallingNumber } from "@/lib/calling-number";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
@@ -52,7 +53,17 @@ export default async function RootLayout({
             showAppNav ? "h-dvh" : "min-h-dvh pb-6",
           )}
         >
-          <AppHeader homeHref={showAppNav ? "/contacts" : undefined} />
+          <AppHeader
+            homeHref={showAppNav ? "/contacts" : undefined}
+            account={
+              showAppNav && user?.email
+                ? {
+                    email: user.email,
+                    initials: getAccountInitials(user),
+                  }
+                : undefined
+            }
+          />
           <main
             className={cn(
               "px-4 pt-4 pb-6",
