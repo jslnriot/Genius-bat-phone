@@ -41,6 +41,11 @@ function getDisplayName(metadata: Record<string, unknown> | null | undefined) {
     .join(" ");
 }
 
+export function getAccountDisplayName(source: AccountIdentitySource) {
+  const name = getDisplayName(source.user_metadata);
+  return name || null;
+}
+
 export function getAccountInitials(source: AccountIdentitySource) {
   const fromName = initialsFromWords(getDisplayName(source.user_metadata));
   if (fromName) return fromName;

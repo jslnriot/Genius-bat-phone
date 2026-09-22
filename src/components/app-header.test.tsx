@@ -1,7 +1,19 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
+}));
 
 import { AppHeader } from "./app-header";
+
+const account = {
+  email: "james@example.com",
+  initials: "JB",
+  displayName: "James Buczkowski",
+  callingNumber: "(716) 406-7468",
+};
 
 describe("AppHeader", () => {
   afterEach(() => {
@@ -18,6 +30,9 @@ describe("AppHeader", () => {
     expect(
       screen.queryByRole("link", { name: "Bat Phone home" }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Open account menu/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("links configured users home to Contacts", () => {
@@ -29,25 +44,31 @@ describe("AppHeader", () => {
     );
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: /Account for/ }),
+      screen.queryByRole("button", { name: /Open account menu/ }),
     ).not.toBeInTheDocument();
   });
 
-  it("shows a compact identity control that links to Account", () => {
-    render(
-      <AppHeader
-        homeHref="/contacts"
-        account={{ email: "james@example.com", initials: "JB" }}
-      />,
-    );
+  it("shows a compact identity control that opens the account menu", async () => {
+    const user = userEvent.setup();
+    render(<AppHeader homeHref="/contacts" account={account} />);
 
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
-    expect(screen.getByRole("banner", { name: "Bat Phone" }).querySelector("svg")).not.toBeNull();
-    const accountLink = screen.getByRole("link", {
-      name: "Account for james@example.com",
+    expect(
+      screen.getByRole("banner", { name: "Bat Phone" }).querySelector("svg"),
+    ).not.toBeNull();
+    const trigger = screen.getByRole("button", {
+      name: "Open account menu for james@example.com",
     });
-    expect(accountLink).toHaveAttribute("href", "/account");
-    expect(accountLink).toHaveTextContent("JB");
+    expect(trigger).toHaveTextContent("JB");
     expect(screen.queryByText("james@example.com")).not.toBeInTheDocument();
+
+    await user.click(trigger);
+
+    expect(screen.getByText("james@example.com")).toBeInTheDocument();
+    expect(screen.getByText("(716) 406-7468")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Account settings" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
   });
 });

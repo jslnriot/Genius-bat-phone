@@ -14,6 +14,7 @@ vi.mock("./globals.css", () => ({}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/onboarding",
+  useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock("@/utils/supabase/server", () => ({
@@ -57,7 +58,7 @@ describe("RootLayout", () => {
       screen.queryByRole("link", { name: "Bat Phone home" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: /Account for/ }),
+      screen.queryByRole("button", { name: /Open account menu/ }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("navigation", { name: "Primary navigation" }),
@@ -92,12 +93,13 @@ describe("RootLayout", () => {
       "href",
       "/contacts",
     );
-    const accountIdentity = screen.getByRole("link", {
-      name: "Account for ada@example.com",
+    const accountIdentity = screen.getByRole("button", {
+      name: "Open account menu for ada@example.com",
     });
-    expect(accountIdentity).toHaveAttribute("href", "/account");
     expect(accountIdentity).toHaveTextContent("A");
+    expect(accountIdentity).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("ada@example.com")).not.toBeInTheDocument();
+    expect(screen.queryByText("(416) 555-0100")).not.toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Primary navigation" });
     const main = screen.getByRole("main");
     expect(nav.className).not.toMatch(/\bfixed\b/);
@@ -120,7 +122,7 @@ describe("RootLayout", () => {
       screen.queryByRole("link", { name: "Bat Phone home" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: /Account for/ }),
+      screen.queryByRole("button", { name: /Open account menu/ }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("navigation", { name: "Primary navigation" }),

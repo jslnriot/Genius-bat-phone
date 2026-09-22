@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getAccountInitials } from "./account-initials";
+import { getAccountDisplayName, getAccountInitials } from "./account-initials";
 
 describe("getAccountInitials", () => {
   it("uses the first and last name when a display name is available", () => {
@@ -33,5 +33,20 @@ describe("getAccountInitials", () => {
 
   it("falls back to the first email letter when initials cannot be derived cleanly", () => {
     expect(getAccountInitials({ email: "ada@example.com" })).toBe("A");
+  });
+});
+
+describe("getAccountDisplayName", () => {
+  it("returns a clean Google display name when available", () => {
+    expect(
+      getAccountDisplayName({
+        email: "james@example.com",
+        user_metadata: { full_name: "James Buczkowski" },
+      }),
+    ).toBe("James Buczkowski");
+  });
+
+  it("does not invent a name from the email", () => {
+    expect(getAccountDisplayName({ email: "ada@example.com" })).toBeNull();
   });
 });

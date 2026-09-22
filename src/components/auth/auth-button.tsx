@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogOut, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { persistOAuthReturnTo } from "@/app/auth/return-to";
+import { signOutToAccount } from "@/components/auth/sign-out";
 import { createClient } from "@/utils/supabase/client";
 
 type AuthButtonProps =
@@ -33,8 +34,6 @@ export function AuthButton(props: AuthButtonProps) {
     setIsPending(true);
     setError(null);
 
-    const supabase = createClient();
-
     if (mode === "sign-in") {
       const { error: signInError } = await startGoogleOAuth(returnTo);
 
@@ -45,15 +44,11 @@ export function AuthButton(props: AuthButtonProps) {
       return;
     }
 
-    const { error: signOutError } = await supabase.auth.signOut();
+    const signOutError = await signOutToAccount(router);
     if (signOutError) {
-      setError("Sign out failed. Please try again.");
+      setError(signOutError);
       setIsPending(false);
-      return;
     }
-
-    router.replace("/account");
-    router.refresh();
   }
 
   return (
