@@ -1,3 +1,6 @@
+// Resolves a spoken (or typed) name against a caller's contacts. Matching
+// tries exact, then case-insensitive, then fuzzy Levenshtein, and returns
+// matched, ambiguous, or none so the voice flow can dial, re-prompt, or hang up.
 export type MatchableContact = {
   id: string;
   name: string;

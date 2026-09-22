@@ -101,6 +101,8 @@ function contactFromDigits<T>(digits: string | undefined, contacts: T[]) {
   return contacts[Number(digits) - 1] ?? null;
 }
 
+// Announce the contact, then bridge the caller to their number with dual-channel
+// recording. Twilio reports the outcome to /api/twilio/dial-complete.
 function dialTwiml(call: DialableCall, callerId: string) {
   const response = new VoiceResponse();
   response.say(`Calling ${call.contact_name_snapshot}.`);

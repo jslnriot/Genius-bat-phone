@@ -1,3 +1,6 @@
+// Ensures one call row per Twilio CallSid. Twilio can retry webhooks, so this
+// returns the existing record when present and otherwise inserts while ignoring
+// duplicate-key races, then re-reads the durable row.
 export type DialableCall = {
   contact_id: string | null;
   contact_name_snapshot: string;
