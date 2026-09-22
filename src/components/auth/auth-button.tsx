@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { persistOAuthReturnTo } from "@/app/auth/return-to";
 import { createClient } from "@/utils/supabase/client";
 
 type AuthButtonProps =
@@ -11,15 +12,12 @@ type AuthButtonProps =
   | { mode: "sign-out" };
 
 async function startGoogleOAuth(returnTo?: string | null) {
-  const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
-  if (returnTo) {
-    callbackUrl.searchParams.set("next", returnTo);
-  }
+  await persistOAuthReturnTo(returnTo);
 
   return createClient().auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: callbackUrl.toString(),
+      redirectTo: `${window.location.origin}/auth/callback`,
     },
   });
 }

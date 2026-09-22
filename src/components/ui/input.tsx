@@ -5,6 +5,7 @@ export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -14,6 +15,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       type,
       label,
       error,
+      hint,
       id,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
@@ -23,7 +25,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
+    const hintId = `${inputId}-hint`;
     const errorId = `${inputId}-error`;
+    const describedBy =
+      [hint ? hintId : null, error ? errorId : null, ariaDescribedBy]
+        .filter(Boolean)
+        .join(" ") || undefined;
 
     return (
       <div className="flex flex-col gap-2">
@@ -46,9 +53,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           ref={ref}
           aria-invalid={error ? true : ariaInvalid}
-          aria-describedby={error ? errorId : ariaDescribedBy}
+          aria-describedby={describedBy}
           {...props}
         />
+        {hint ? (
+          <p id={hintId} className="text-xs leading-4 text-secondary-text">
+            {hint}
+          </p>
+        ) : null}
         {error ? (
           <p
             id={errorId}

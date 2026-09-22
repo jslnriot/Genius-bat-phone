@@ -28,6 +28,7 @@ beforeEach(() => {
   mocks.from.mockReturnValue({
     select: mocks.select.mockReturnValue({
       eq: mocks.eq.mockReturnValue({
+        maybeSingle: mocks.single,
         single: mocks.single,
       }),
     }),
@@ -61,12 +62,90 @@ describe("GET /auth/callback", () => {
     );
   });
 
+  it("returns to a safe path stored in the return cookie", async () => {
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+        {
+          headers: {
+            cookie: "bp_return_to=%2Fcalls%2Fcall-1",
+          },
+        },
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://genius-bat-phone.vercel.app/calls/call-1",
+    );
+  });
+
+  it("rejects a malicious return cookie", async () => {
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+        {
+          headers: {
+            cookie: "bp_return_to=https%3A%2F%2Fevil.com",
+          },
+        },
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://genius-bat-phone.vercel.app/contacts",
+    );
+  });
+
+  it("clears the return cookie after the callback completes", async () => {
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+        {
+          headers: {
+            cookie: "bp_return_to=%2Fcalls%2Fcall-1",
+          },
+        },
+      ),
+    );
+
+    const setCookie = response.headers.getSetCookie().join("\n");
+    expect(setCookie).toMatch(/bp_return_to=;/);
+    expect(setCookie).toMatch(/Max-Age=0/);
+    expect(setCookie).toMatch(/Path=\/auth\/callback/);
+  });
+
+  it("sends a configured user to contacts when no return path exists", async () => {
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://genius-bat-phone.vercel.app/contacts",
+    );
+  });
+
   it("falls back to onboarding when no phone number is configured", async () => {
     mocks.single.mockResolvedValue({ data: { phone_number: null } });
 
     const response = await GET(
       new Request(
         "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://genius-bat-phone.vercel.app/onboarding",
+    );
+  });
+
+  it("sends an incomplete profile to onboarding even when a return path exists", async () => {
+    mocks.single.mockResolvedValue({ data: { phone_number: null } });
+
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc&next=%2Fcalls%2Fcall-1",
       ),
     );
 

@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthButton } from "@/components/auth/auth-button";
 import { OnboardingForm } from "@/components/auth/onboarding-form";
+import { getCallingNumber } from "@/lib/calling-number";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function OnboardingPage() {
@@ -13,24 +15,19 @@ export default async function OnboardingPage() {
     redirect("/account");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("phone_number")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.phone_number) {
+  const callingNumber = await getCallingNumber(supabase, user.id);
+  if (callingNumber) {
     redirect("/contacts");
   }
 
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] font-bold leading-[34px] text-[var(--color-primary)]">
-          Set up your account
+        <h1 className="text-[28px] leading-[34px] font-bold text-primary">
+          Set up your calling number
         </h1>
-        <p className="text-sm text-[var(--color-secondary-text)]">
-          Add the phone number you’ll use with Bat Phone.
+        <p className="text-sm leading-5 text-secondary-text">
+          Bat Phone uses your phone number to recognize you when you call.
         </p>
       </header>
 
@@ -38,13 +35,25 @@ export default async function OnboardingPage() {
         <CardHeader>
           <CardTitle>Calling number</CardTitle>
           <CardDescription>
-            You can update this later from your account.
+            You can change this later from Account.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <OnboardingForm />
         </CardContent>
       </Card>
+
+      <section className="border-t border-border pt-8">
+        <p className="text-sm font-medium leading-5 text-primary">
+          Signed in as
+        </p>
+        <p className="mt-1 break-all text-base leading-6 text-secondary-text">
+          {user.email}
+        </p>
+        <div className="mt-4">
+          <AuthButton mode="sign-out" />
+        </div>
+      </section>
     </div>
   );
 }

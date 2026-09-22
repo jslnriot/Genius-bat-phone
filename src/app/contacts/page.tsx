@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import {
   ContactManager,
 } from "@/components/contacts/contact-manager";
+import { getCallingNumber } from "@/lib/calling-number";
 import type { ContactRecord } from "@/lib/contact-validation";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,6 +14,11 @@ export default async function ContactsPage() {
 
   if (!user) {
     redirect("/account");
+  }
+
+  const callingNumber = await getCallingNumber(supabase, user.id);
+  if (!callingNumber) {
+    redirect("/onboarding");
   }
 
   const { data, error } = await supabase

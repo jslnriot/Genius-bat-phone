@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { CallHistory } from "@/components/calls/call-history";
+import { getCallingNumber } from "@/lib/calling-number";
 import { CALL_RECORD_SELECT, type CallRecord } from "@/lib/calls";
 import { createClient } from "@/utils/supabase/server";
 
@@ -12,6 +13,11 @@ export default async function CallsPage() {
 
   if (!user) {
     redirect("/account");
+  }
+
+  const callingNumber = await getCallingNumber(supabase, user.id);
+  if (!callingNumber) {
+    redirect("/onboarding");
   }
 
   const { data, error } = await supabase

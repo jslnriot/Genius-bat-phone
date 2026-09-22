@@ -79,6 +79,19 @@ describe("CallDetailPage", () => {
     ).rejects.toThrow("redirect:/account?next=%2Fcalls%2Fcall-1");
   });
 
+  it("redirects signed-in users without a calling number to onboarding", async () => {
+    mocks.profilesQuery.maybeSingle.mockResolvedValue({
+      data: { phone_number: null },
+      error: null,
+    });
+
+    await expect(
+      CallDetailPage({
+        params: Promise.resolve({ id: "call-1" }),
+      }),
+    ).rejects.toThrow("redirect:/onboarding");
+  });
+
   it("renders a call returned through the authenticated owner query", async () => {
     mocks.callsQuery.maybeSingle.mockResolvedValue({
       data: {
@@ -111,7 +124,7 @@ describe("CallDetailPage", () => {
     expect(screen.getByText("(310) 555-0123")).toBeInTheDocument();
   });
 
-  it("renders a call while transcription is still in progress", async () => {
+  it("returns not found when RLS hides another user's call", async () => {
     mocks.callsQuery.maybeSingle.mockResolvedValue({
       data: {
         id: "call-1",

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { CallDetail } from "@/components/calls/call-detail";
+import { getCallingNumber } from "@/lib/calling-number";
 import { CALL_RECORD_SELECT, type CallRecord } from "@/lib/calls";
 import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
@@ -18,6 +19,11 @@ export default async function CallDetailPage({
   if (!user) {
     const returnTo = resolveSafeReturnPath(`/calls/${id}`);
     redirect(returnTo ? `/account?next=${encodeURIComponent(returnTo)}` : "/account");
+  }
+
+  const callingNumber = await getCallingNumber(supabase, user.id);
+  if (!callingNumber) {
+    redirect("/onboarding");
   }
 
   const { data: call, error } = await supabase
@@ -43,16 +49,10 @@ export default async function CallDetailPage({
     notFound();
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("phone_number")
-    .eq("id", user.id)
-    .maybeSingle();
-
   return (
     <CallDetail
       call={call as CallRecord}
-      callerPhoneNumber={profile?.phone_number ?? null}
+      callerPhoneNumber={callingNumber}
     />
   );
 }

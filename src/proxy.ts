@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getCallingNumber, isMainAppPath } from "@/lib/calling-number";
 import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { getPublicSupabaseEnv } from "@/utils/supabase/public-env";
 
@@ -50,6 +51,22 @@ export async function proxy(request: NextRequest) {
       redirectResponse.cookies.set(cookie);
     });
     return redirectResponse;
+  }
+
+  const userId = claimsData?.claims?.sub;
+  if (
+    typeof userId === "string" &&
+    isMainAppPath(request.nextUrl.pathname)
+  ) {
+    const callingNumber = await getCallingNumber(supabase, userId);
+    if (!callingNumber) {
+      const onboardingUrl = new URL("/onboarding", request.url);
+      const redirectResponse = NextResponse.redirect(onboardingUrl);
+      response.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie);
+      });
+      return redirectResponse;
+    }
   }
 
   return response;

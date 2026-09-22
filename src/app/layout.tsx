@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/app-header";
 import { BottomNav } from "@/components/bottom-nav";
+import { getCallingNumber } from "@/lib/calling-number";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 
@@ -30,7 +31,10 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const showAppNav = Boolean(user);
+  const callingNumber = user
+    ? await getCallingNumber(supabase, user.id)
+    : null;
+  const showAppNav = Boolean(user && callingNumber);
 
   return (
     <html lang="en">
