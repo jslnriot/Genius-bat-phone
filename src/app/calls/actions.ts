@@ -104,5 +104,6 @@ export async function deleteCall(callId: string): Promise<ActionResult> {
 
   revalidatePath("/calls");
   revalidatePath(`/calls/${callId}`);
+  revalidatePath("/", "layout");
   redirect("/calls");
 }

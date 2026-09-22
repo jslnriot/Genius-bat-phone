@@ -8,7 +8,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-[var(--color-action)] text-white hover:bg-[var(--color-action)]/90",
-        secondary: "bg-white text-[var(--color-primary)] border border-[var(--color-border)] hover:bg-[var(--color-muted-background)]",
+        secondary:
+          "bg-white text-[var(--color-primary)] border border-[var(--color-border)] shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-action/25 hover:bg-[var(--color-muted-background)]",
         destructive: "text-[var(--color-error)] bg-transparent hover:bg-[var(--color-error)]/10",
         ghost: "hover:bg-[var(--color-muted-background)]",
         link: "text-[var(--color-action)] underline-offset-4 hover:underline",

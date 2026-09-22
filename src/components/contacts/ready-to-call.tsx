@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy } from "lucide-react";
+import { Copy, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
@@ -25,9 +25,15 @@ export function ReadyToCall({ batPhoneNumber }: ReadyToCallProps) {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex flex-col gap-3 border-action/30 bg-action/[0.07] shadow-[0_1px_2px_rgba(37,99,235,0.08)]">
       <div className="flex flex-col gap-1">
-        <h2 className="text-base font-semibold leading-6 text-primary">
+        <h2 className="flex items-center gap-3 text-base font-semibold leading-6 text-primary">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-(--radius-button) bg-white/80"
+          >
+            <Phone size={18} className="text-action" />
+          </span>
           Ready to make a call?
         </h2>
         <p className="text-sm leading-5 text-secondary-text">

@@ -51,7 +51,7 @@ export function CallHistory({ calls }: { calls: CallRecord[] }) {
           <li key={call.id} className="border-b border-border last:border-b-0">
             <Link
               href={`/calls/${encodeURIComponent(call.id)}`}
-              className="flex min-h-14 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
+              className="flex min-h-14 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted-background/80 focus-visible:bg-muted-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-base font-semibold leading-6 text-primary">

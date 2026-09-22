@@ -122,6 +122,7 @@ describe("deleteCall", () => {
     expect(mocks.deleteQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/calls");
     expect(mocks.revalidatePath).toHaveBeenCalledWith(`/calls/${callId}`);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/", "layout");
     expect(mocks.redirect).toHaveBeenCalledWith("/calls");
   });
 

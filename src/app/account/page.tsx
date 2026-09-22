@@ -1,6 +1,8 @@
 import { AlertCircle, FileText, Phone, Users, type LucideIcon } from "lucide-react";
+import { AccountActivitySummary } from "@/components/account-activity-summary";
 import { AccountPhoneForm } from "@/components/auth/account-phone-form";
 import { AuthButton } from "@/components/auth/auth-button";
+import { getAccountCounts } from "@/lib/account-counts";
 import { resolveSafeReturnPath } from "@/lib/safe-return-path";
 import { createClient } from "@/utils/supabase/server";
 
@@ -123,11 +125,10 @@ export default async function AccountPage({
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("phone_number")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, accountCounts] = await Promise.all([
+    supabase.from("profiles").select("phone_number").eq("id", user.id).single(),
+    getAccountCounts(supabase, user.id),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -143,7 +144,7 @@ export default async function AccountPage({
 
       <section
         aria-labelledby="google-account-heading"
-        className="flex flex-col gap-1"
+        className="flex flex-col gap-1 border-b border-border pb-6"
       >
         <h2
           id="google-account-heading"
@@ -156,9 +157,18 @@ export default async function AccountPage({
         </p>
       </section>
 
-      <section aria-labelledby="calling-number-heading">
+      <section
+        aria-labelledby="calling-number-heading"
+        className="border-b border-border pb-6"
+      >
         <AccountPhoneForm initialPhoneNumber={profile?.phone_number ?? null} />
       </section>
+
+      <AccountActivitySummary
+        contactCount={accountCounts.contactCount}
+        callCount={accountCounts.callCount}
+        variant="page"
+      />
 
       <section className="border-t border-border pt-8">
         <AuthButton mode="sign-out" />

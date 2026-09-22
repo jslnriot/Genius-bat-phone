@@ -56,6 +56,7 @@ export async function createContact(
   }
 
   revalidatePath("/contacts");
+  revalidatePath("/", "layout");
   return { success: true, data };
 }
 
@@ -97,6 +98,7 @@ export async function updateContact(
   }
 
   revalidatePath("/contacts");
+  revalidatePath("/", "layout");
   return { success: true, data };
 }
 
@@ -126,5 +128,6 @@ export async function deleteContact(
   }
 
   revalidatePath("/contacts");
+  revalidatePath("/", "layout");
   return { success: true, data: undefined };
 }

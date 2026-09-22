@@ -13,6 +13,8 @@ const account = {
   initials: "JB",
   displayName: "James Buczkowski",
   callingNumber: "(716) 406-7468",
+  contactCount: 2,
+  callCount: 5,
 };
 
 describe("AppHeader", () => {
@@ -69,6 +71,14 @@ describe("AppHeader", () => {
     expect(screen.getByRole("link", { name: "Account settings" })).toHaveAttribute(
       "href",
       "/account",
+    );
+    expect(screen.getByRole("link", { name: /Contacts/ })).toHaveAttribute(
+      "href",
+      "/contacts",
+    );
+    expect(screen.getByRole("link", { name: /Calls/ })).toHaveAttribute(
+      "href",
+      "/calls",
     );
   });
 });

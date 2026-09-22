@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/app-header";
 import { BottomNav } from "@/components/bottom-nav";
+import { getAccountCounts } from "@/lib/account-counts";
 import { getAccountDisplayName, getAccountInitials } from "@/lib/account-initials";
 import { getCallingNumber } from "@/lib/calling-number";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
@@ -38,6 +39,10 @@ export default async function RootLayout({
     ? await getCallingNumber(supabase, user.id)
     : null;
   const showAppNav = Boolean(user && callingNumber);
+  const accountCounts =
+    showAppNav && user
+      ? await getAccountCounts(supabase, user.id)
+      : null;
 
   return (
     <html lang="en">
@@ -50,19 +55,22 @@ export default async function RootLayout({
       >
         <div
           className={cn(
-            "mx-auto flex w-full max-w-[480px] flex-col",
+            "mx-auto flex w-full max-w-[480px] flex-col bg-white",
             showAppNav ? "h-dvh" : "min-h-dvh pb-6",
+            "shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:border-x sm:border-border",
           )}
         >
           <AppHeader
             homeHref={showAppNav ? "/contacts" : undefined}
             account={
-              showAppNav && user?.email && callingNumber
+              showAppNav && user?.email && callingNumber && accountCounts
                 ? {
                     email: user.email,
                     initials: getAccountInitials(user),
                     displayName: getAccountDisplayName(user),
                     callingNumber: e164ToDisplayPhone(callingNumber),
+                    contactCount: accountCounts.contactCount,
+                    callCount: accountCounts.callCount,
                   }
                 : undefined
             }

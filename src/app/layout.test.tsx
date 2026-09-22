@@ -20,13 +20,30 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(async () => ({
     auth: { getUser: mocks.authGetUser },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: mocks.maybeSingle,
-        })),
-      })),
-    })),
+    from: vi.fn((table: string) => {
+      if (table === "profiles") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: mocks.maybeSingle,
+            })),
+          })),
+        };
+      }
+      if (table === "contacts") {
+        return {
+          select: vi.fn().mockResolvedValue({ count: 2, error: null }),
+        };
+      }
+      if (table === "calls") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn().mockResolvedValue({ count: 5, error: null }),
+          })),
+        };
+      }
+      throw new Error(`unexpected table ${table}`);
+    }),
   })),
 }));
 

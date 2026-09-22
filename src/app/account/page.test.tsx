@@ -36,14 +36,31 @@ describe("AccountPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.authGetUser.mockResolvedValue({ data: { user: null } });
-    mocks.from.mockReturnValue({
-      select: mocks.select.mockReturnValue({
-        eq: mocks.eq.mockReturnValue({
-          single: mocks.single.mockResolvedValue({
-            data: { phone_number: "+14165550100" },
+    mocks.from.mockImplementation((table: string) => {
+      if (table === "profiles") {
+        return {
+          select: mocks.select.mockReturnValue({
+            eq: mocks.eq.mockReturnValue({
+              single: mocks.single.mockResolvedValue({
+                data: { phone_number: "+14165550100" },
+              }),
+            }),
           }),
-        }),
-      }),
+        };
+      }
+      if (table === "contacts") {
+        return {
+          select: vi.fn().mockResolvedValue({ count: 3, error: null }),
+        };
+      }
+      if (table === "calls") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn().mockResolvedValue({ count: 2, error: null }),
+          })),
+        };
+      }
+      throw new Error(`unexpected table ${table}`);
     });
     mocks.AuthButton.mockImplementation(
       (props: { mode: "sign-in" | "sign-out" }) => (
@@ -157,6 +174,21 @@ describe("AccountPage", () => {
       screen.getByText("Calls to Bat Phone must come from this number."),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Your Bat Phone activity" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Contacts/ })).toHaveAttribute(
+      "href",
+      "/contacts",
+    );
+    expect(screen.getByRole("link", { name: /Calls/ })).toHaveAttribute(
+      "href",
+      "/calls",
+    );
+    expect(
+      screen.getByText("3 people you can reach through Bat Phone."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("2 calls in your history.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", {

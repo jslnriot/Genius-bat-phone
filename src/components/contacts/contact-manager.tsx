@@ -340,10 +340,11 @@ export function ContactManager({
       ) : null}
 
       {!formIsOpen && hasContacts ? (
-        <div className="flex flex-col gap-2">
+        <ul className="overflow-hidden rounded-(--radius-card) border border-border bg-white shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
           {contacts.map((contact) =>
             deletingContact?.id === contact.id ? (
-              <Card key={contact.id} className="flex flex-col gap-4">
+              <li key={contact.id} className="border-b border-border p-4 last:border-b-0">
+              <Card className="flex flex-col gap-4 border-0 bg-muted-background/40 p-4 shadow-none">
                 <div className="space-y-2">
                   <h2 className="text-base font-semibold text-primary">
                     Delete {contact.name}?
@@ -386,14 +387,16 @@ export function ContactManager({
                   </Tooltip>
                 </div>
               </Card>
+              </li>
             ) : (
-              <div
+              <li
                 key={contact.id}
-                className="flex min-h-14 w-full items-center rounded-(--radius-card) border border-border bg-white pr-1 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+                className="group border-b border-border last:border-b-0"
               >
+              <div className="flex min-h-14 w-full items-center pr-1 transition-colors group-hover:bg-muted-background/60">
                 <button
                   type="button"
-                  className="flex min-h-14 min-w-0 flex-1 items-center px-4 py-3 text-left transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
+                  className="flex min-h-14 min-w-0 flex-1 items-center px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action"
                   onClick={() => openEditForm(contact)}
                 >
                   <div className="min-w-0 flex-1">
@@ -426,9 +429,10 @@ export function ContactManager({
                   </button>
                 </Tooltip>
               </div>
+              </li>
             ),
           )}
-        </div>
+        </ul>
       ) : null}
     </div>
   );
