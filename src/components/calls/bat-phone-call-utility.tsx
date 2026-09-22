@@ -51,7 +51,7 @@ export function BatPhoneCallUtility({
         </Button>
       </div>
       <p className="text-sm leading-5 text-secondary-text">
-        Call from your registered phone and say a contact&apos;s name.
+      Call this number from your registered phone. When prompted, say a contact&apos;s name.
       </p>
       {copyStatus !== "idle" ? (
         <p role="status" className="text-xs leading-4 text-secondary-text">

@@ -17,7 +17,7 @@ describe("BatPhoneCallUtility", () => {
     expect(screen.getByText("(289) 278-2417")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Call from your registered phone and say a contact's name.",
+        "Call this number from your registered phone. When prompted, say a contact's name, or follow the keypad instructions.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();

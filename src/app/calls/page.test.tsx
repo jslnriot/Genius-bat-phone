@@ -132,7 +132,7 @@ describe("CallsPage", () => {
     expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Call from your registered phone and say a contact's name.",
+        "Call this number from your registered phone. When prompted, say a contact's name, or follow the keypad instructions.",
       ),
     ).toBeInTheDocument();
     expect(

@@ -19,7 +19,7 @@ const HOW_IT_WORKS: {
   {
     icon: Phone,
     title: "Call Bat Phone",
-    description: "Call from your registered number and say a contact’s name.",
+    description: "Call from your registered number and say a contact’s name, or follow the keypad instructions.",
   },
   {
     icon: FileText,
