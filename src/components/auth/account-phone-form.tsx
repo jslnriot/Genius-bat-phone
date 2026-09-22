@@ -12,6 +12,8 @@ import {
   validateDisplayPhone,
 } from "@/lib/contact-validation";
 
+const CALLING_NUMBER_HINT = "Use the number you’ll call Bat Phone from.";
+
 export function AccountPhoneForm({
   initialPhoneNumber,
 }: {
@@ -26,6 +28,14 @@ export function AccountPhoneForm({
   const [isSaving, setIsSaving] = useState(false);
   const [phoneError, setPhoneError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
+
+  function openForm() {
+    setPhoneError(undefined);
+    setFormError(null);
+    setSaveStatus("idle");
+    setIsEditing(true);
+  }
 
   function closeForm() {
     setPhoneNumber(
@@ -63,28 +73,42 @@ export function AccountPhoneForm({
     setPhoneNumber(e164ToDisplayPhone(e164Phone));
     setIsSaving(false);
     setIsEditing(false);
+    setSaveStatus("saved");
     router.refresh();
   }
 
   if (!isEditing) {
     return (
-      <div className="flex min-w-0 items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-primary">Phone number</p>
-          <p className="break-words text-base text-secondary-text">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h2
+            id="calling-number-heading"
+            className="text-xl font-semibold leading-7 text-primary"
+          >
+            Calling number
+          </h2>
+          <p className="break-words text-base leading-6 text-primary">
             {savedPhoneNumber
               ? e164ToDisplayPhone(savedPhoneNumber)
               : "Not set"}
           </p>
+          <p className="text-sm leading-5 text-secondary-text">
+            Calls to Bat Phone must come from this number.
+          </p>
+          {saveStatus === "saved" ? (
+            <p role="status" className="text-sm leading-5 text-success">
+              Calling number updated.
+            </p>
+          ) : null}
         </div>
         <Button
           type="button"
           variant="secondary"
           size="sm"
           className="h-11 shrink-0"
-          onClick={() => setIsEditing(true)}
+          onClick={openForm}
         >
-          {savedPhoneNumber ? "Change" : "Add"}
+          {savedPhoneNumber ? "Edit" : "Add"}
         </Button>
       </div>
     );
@@ -96,13 +120,17 @@ export function AccountPhoneForm({
       onSubmit={handleSubmit}
       noValidate
     >
+      <h2 id="calling-number-heading" className="sr-only">
+        Calling number
+      </h2>
       <Input
-        label="Phone number"
+        label="Calling number"
         type="tel"
         inputMode="numeric"
         name="phone_number"
         autoComplete="tel"
         placeholder="(555) 000-0000"
+        hint={CALLING_NUMBER_HINT}
         value={phoneNumber}
         error={phoneError}
         onChange={(event) => {
@@ -116,7 +144,7 @@ export function AccountPhoneForm({
         required
       />
       {formError ? (
-        <p role="alert" className="text-sm text-error">
+        <p role="alert" className="text-sm leading-5 text-error">
           {formError}
         </p>
       ) : null}

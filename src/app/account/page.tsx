@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, FileText, Phone, Users, type LucideIcon } from "lucide-react";
 import { AccountPhoneForm } from "@/components/auth/account-phone-form";
 import { AuthButton } from "@/components/auth/auth-button";
@@ -131,35 +130,39 @@ export default async function AccountPage({
     .single();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] font-bold leading-[34px] text-[var(--color-primary)]">
+        <h1 className="text-[28px] font-bold leading-[34px] text-primary">
           Account
         </h1>
-        <p className="text-sm text-[var(--color-secondary-text)]">
-          View your account and calling number.
+        <p className="text-sm leading-5 text-secondary-text">
+          Manage your Google account and the phone number Bat Phone uses to
+          recognize your calls.
         </p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Your signed-in account details.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-[var(--color-primary)]">
-              Email
-            </p>
-            <p className="break-all text-base text-[var(--color-secondary-text)]">
-              {user.email}
-            </p>
-          </div>
-          <AccountPhoneForm initialPhoneNumber={profile?.phone_number ?? null} />
-        </CardContent>
-      </Card>
+      <section
+        aria-labelledby="google-account-heading"
+        className="flex flex-col gap-1"
+      >
+        <h2
+          id="google-account-heading"
+          className="text-sm font-medium leading-5 text-primary"
+        >
+          Google account
+        </h2>
+        <p className="break-all text-base leading-6 text-primary">
+          {user.email}
+        </p>
+      </section>
 
-      <AuthButton mode="sign-out" />
+      <section aria-labelledby="calling-number-heading">
+        <AccountPhoneForm initialPhoneNumber={profile?.phone_number ?? null} />
+      </section>
+
+      <section className="border-t border-border pt-8">
+        <AuthButton mode="sign-out" />
+      </section>
     </div>
   );
 }

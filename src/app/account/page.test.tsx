@@ -22,8 +22,12 @@ vi.mock("@/components/auth/auth-button", () => ({
     mocks.AuthButton(props),
 }));
 
-vi.mock("@/components/auth/account-phone-form", () => ({
-  AccountPhoneForm: () => null,
+vi.mock("@/app/onboarding/actions", () => ({
+  saveProfilePhone: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 import AccountPage from "./page";
@@ -126,7 +130,7 @@ describe("AccountPage", () => {
     });
   });
 
-  it("keeps the signed-in account screen unchanged", async () => {
+  it("shows the signed-in Google account, calling number, and sign out", async () => {
     mocks.authGetUser.mockResolvedValue({
       data: { user: { id: "user-1", email: "ada@example.com" } },
     });
@@ -136,7 +140,23 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Account" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Manage your Google account and the phone number Bat Phone uses to recognize your calls.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Google account" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Calling number" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("(416) 555-0100")).toBeInTheDocument();
+    expect(
+      screen.getByText("Calls to Bat Phone must come from this number."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", {
