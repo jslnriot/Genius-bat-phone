@@ -12,4 +12,4 @@ Add PNG captures for [QUICK_START_GUIDE.md](../QUICK_START_GUIDE.md):
 | `06-call-detail.png` | Call detail — metadata and recording |
 | `07-transcript.png` | Call detail — transcript section |
 
-Images are not committed until captured manually.
+All seven PNGs for the quick-start guide are captured and linked from [QUICK_START_GUIDE.md](../QUICK_START_GUIDE.md).

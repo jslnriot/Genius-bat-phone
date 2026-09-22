@@ -50,17 +50,16 @@ Repeat for anyone you want to reach through Bat Phone.
 
 Once you have at least one contact, **Calls** is your usual home screen.
 
-1. Open **Calls** from the bottom navigation.
-2. At the top, find the **Bat Phone** number and tap **Copy** if you want it on your clipboard.
+1. Open **Calls** from the bottom navigation (first tab).
+2. In the Bat Phone card at the top, note the number **(289) 278-2417** and tap **Copy** if you want it on your clipboard.
+3. From your **registered phone** (the **Calling number** in Account), dial that number.
+4. Follow the on-screen guidance:
 
-**Bat Phone number:** **(289) 278-2417**
-
-3. From your **registered phone** (the calling number in Account), dial that number.
-4. When prompted, **say a contact’s name**, or follow the **keypad instructions** on the call.
+   > Call this number from your registered phone. When prompted, say a contact's name, or follow the keypad instructions.
 
 Bat Phone connects you to that contact. When the call ends, recording and transcription are handled automatically.
 
-![Calls home with Bat Phone number and call history](./screenshots/05-calls-home.png)
+![Calls screen with Bat Phone number, calling guidance, and call history](./screenshots/05-calls-home.png)
 
 ---
 
@@ -83,18 +82,20 @@ Tap a call to open its detail page.
 
 ## 6. Recording and transcript
 
-On a call’s detail page you can:
+Tap a call in **Calls**, or use **Return to calls** from detail to go back to the list.
 
-- **Play** the recording in the browser
-- **Download** the recording
-- **Read** the transcript when it’s ready
-- **Copy** the transcript text
+On the call detail page you can:
+
+- **Play** the recording (audio controls under **Recording**)
+- Tap **Download recording**
+- **Read** the transcript under **Transcript** when status shows **Transcript Ready**
+- Tap **Copy** next to **Transcript** to copy the full text
 
 Transcripts may take a short time to appear after the call ends.
 
-![Call detail with recording](./screenshots/06-call-detail.png)
+![Call detail with recording, metadata, and transcript](./screenshots/06-call-detail.png)
 
-![Transcript on call detail](./screenshots/07-transcript.png)
+![Full transcript and Delete call on call detail](./screenshots/07-transcript.png)
 
 ---
 
