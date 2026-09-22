@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { CallDetail } from "./call-detail";
-import type { CallRecord } from "@/lib/calls";
+import { formatCallDetailTime, type CallRecord } from "@/lib/calls";
 
 const call: CallRecord = {
   id: "call-1",
@@ -30,8 +30,12 @@ describe("CallDetail", () => {
     expect(
       screen.getByRole("link", { name: "Return to calls" }),
     ).toHaveAttribute("href", "/calls");
-    expect(screen.getByText("Caller")).toBeInTheDocument();
-    expect(screen.getByText("Hello.")).toBeInTheDocument();
+    expect(screen.getByText("Caller")).toHaveClass(
+      "text-sm",
+      "font-semibold",
+      "text-primary",
+    );
+    expect(screen.getByText("Hello.")).toHaveClass("text-base");
     expect(screen.getByText("James")).toBeInTheDocument();
     expect(screen.getByText("Hello back.")).toBeInTheDocument();
 
@@ -126,11 +130,11 @@ describe("CallDetail", () => {
       );
 
       expect(screen.getByText("Transcribing")).toBeInTheDocument();
+      expect(screen.getByText("Preparing transcript")).toBeInTheDocument();
       expect(
-        screen.getByText("Transcription in progress"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText("The transcript will appear here when it’s ready."),
+        screen.getByText(
+          "The transcript is being prepared. Check back in a moment.",
+        ),
       ).toBeInTheDocument();
       expect(container.querySelector("audio")).toBeInTheDocument();
       expect(screen.queryByText("Hello.")).not.toBeInTheDocument();
@@ -177,32 +181,29 @@ describe("CallDetail", () => {
       <CallDetail call={call} callerPhoneNumber="+13105550123" />,
     );
 
-    expect(screen.getByText(/Call placed:/)).toBeInTheDocument();
-    expect(screen.getByText(/From:/)).toBeInTheDocument();
-    expect(screen.getByText(/To:/)).toBeInTheDocument();
-    expect(screen.getByText(/Duration:/)).toBeInTheDocument();
-    expect(screen.getByText("Status:")).toBeInTheDocument();
+    expect(screen.getByText(formatCallDetailTime(call.start_time))).toBeInTheDocument();
+    expect(screen.getByText("From")).toBeInTheDocument();
+    expect(screen.getByText("To")).toBeInTheDocument();
+    expect(screen.getByText("Duration")).toBeInTheDocument();
+    expect(screen.queryByText("Status:")).not.toBeInTheDocument();
     expect(screen.getByText("(310) 555-0123")).toBeInTheDocument();
     expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
     expect(screen.getByText("20 sec")).toBeInTheDocument();
     expect(screen.getByText("Transcript Ready")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Copy transcript" }),
-    ).toBeInTheDocument();
+    ).toHaveTextContent("Copy");
     expect(
       screen.getByRole("tooltip", { name: "Copy transcript" }),
     ).toBeInTheDocument();
   });
 
-  it("renders the transcript in a scrollable container", () => {
-    const { container } = render(<CallDetail call={call} />);
+  it("renders the transcript in a readable panel that can scroll with the page", () => {
+    render(<CallDetail call={call} />);
 
     const transcriptRegion = screen.getByLabelText("Call transcript");
-    expect(transcriptRegion).toHaveClass("overflow-y-auto");
-    expect(transcriptRegion).toHaveClass("max-h-72");
-    expect(container.querySelector(".overflow-y-auto")).toContainElement(
-      screen.getByText("Hello."),
-    );
+    expect(transcriptRegion).not.toHaveClass("max-h-72");
+    expect(transcriptRegion).toContainElement(screen.getByText("Hello."));
   });
 
   it("includes a delete call action below the transcript", () => {

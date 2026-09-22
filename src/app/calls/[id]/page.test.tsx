@@ -120,7 +120,6 @@ describe("CallDetailPage", () => {
     ).toBeInTheDocument();
     expect(mocks.callsQuery.eq).toHaveBeenCalledWith("id", "call-1");
     expect(mocks.callsQuery.eq).toHaveBeenCalledWith("user_id", "user-1");
-    expect(screen.getByText(/From:/)).toBeInTheDocument();
     expect(screen.getByText("(310) 555-0123")).toBeInTheDocument();
   });
 
@@ -148,9 +147,7 @@ describe("CallDetailPage", () => {
     );
 
     expect(screen.getByText("Transcribing")).toBeInTheDocument();
-    expect(
-      screen.getByText("Transcription in progress"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Preparing transcript")).toBeInTheDocument();
   });
 
   it("returns not found when RLS hides another user's call", async () => {

@@ -43,7 +43,7 @@ export function CallDelete({ callId }: CallDeleteProps) {
   return (
     <section
       aria-labelledby="delete-call-heading"
-      className="mt-8 space-y-4 border-t border-border pt-8"
+      className="border-t border-border pt-8"
     >
       {!isConfirming ? (
         <Tooltip label="Delete this call from your history" className="w-full">
