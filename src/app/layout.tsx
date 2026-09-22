@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
@@ -47,7 +48,7 @@ export default async function RootLayout({
               : "pb-6",
           )}
         >
-          <AppHeader />
+          <AppHeader homeHref={showAppNav ? "/contacts" : undefined} />
           <main className="px-4 pt-4 pb-6">
             {children}
           </main>

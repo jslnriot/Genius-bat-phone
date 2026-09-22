@@ -54,6 +54,9 @@ describe("RootLayout", () => {
 
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
     expect(
+      screen.queryByRole("link", { name: "Bat Phone home" }),
+    ).not.toBeInTheDocument();
+    expect(
       screen.queryByRole("navigation", { name: "Primary navigation" }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Contacts" })).not.toBeInTheDocument();
@@ -81,5 +84,27 @@ describe("RootLayout", () => {
     expect(screen.getByRole("link", { name: "Contacts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Calls" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Account" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Bat Phone home" })).toHaveAttribute(
+      "href",
+      "/contacts",
+    );
+  });
+
+  it("keeps signed-out chrome non-interactive besides the landing content", async () => {
+    mocks.authGetUser.mockResolvedValue({ data: { user: null } });
+
+    render(
+      await RootLayout({
+        children: <div>Make a call. We’ll handle the rest.</div>,
+      }),
+    );
+
+    expect(screen.getByText("Bat Phone")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Bat Phone home" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("navigation", { name: "Primary navigation" }),
+    ).not.toBeInTheDocument();
   });
 });
