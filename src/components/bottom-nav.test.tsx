@@ -28,6 +28,7 @@ describe("BottomNav", () => {
       "Account",
     ]);
     expect(links).toHaveLength(3);
+    expect(nav.className).not.toMatch(/\bfixed\b/);
   });
 
   it("marks the active route with aria-current", () => {

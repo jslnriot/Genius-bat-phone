@@ -39,21 +39,30 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased`}>
+      <body
+        className={cn(
+          geistSans.variable,
+          "antialiased",
+          showAppNav && "h-dvh overflow-hidden",
+        )}
+      >
         <div
           className={cn(
-            "mx-auto min-h-dvh w-full max-w-[480px]",
-            showAppNav
-              ? "pb-[calc(5rem+env(safe-area-inset-bottom))]"
-              : "pb-6",
+            "mx-auto flex w-full max-w-[480px] flex-col",
+            showAppNav ? "h-dvh" : "min-h-dvh pb-6",
           )}
         >
           <AppHeader homeHref={showAppNav ? "/contacts" : undefined} />
-          <main className="px-4 pt-4 pb-6">
+          <main
+            className={cn(
+              "px-4 pt-4 pb-6",
+              showAppNav && "min-h-0 flex-1 overflow-y-auto",
+            )}
+          >
             {children}
           </main>
+          {showAppNav ? <BottomNav /> : null}
         </div>
-        {showAppNav ? <BottomNav /> : null}
       </body>
     </html>
   );

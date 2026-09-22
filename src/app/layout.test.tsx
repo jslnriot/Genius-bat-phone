@@ -62,6 +62,7 @@ describe("RootLayout", () => {
     expect(screen.queryByRole("link", { name: "Contacts" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Calls" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Account" })).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).not.toHaveClass("overflow-y-auto");
   });
 
   it("shows the bottom navigation after calling-number setup is complete", async () => {
@@ -88,6 +89,12 @@ describe("RootLayout", () => {
       "href",
       "/contacts",
     );
+    const nav = screen.getByRole("navigation", { name: "Primary navigation" });
+    const main = screen.getByRole("main");
+    expect(nav.className).not.toMatch(/\bfixed\b/);
+    expect(main).toHaveClass("overflow-y-auto");
+    expect(main).toHaveClass("pb-6");
+    expect(main.parentElement).toContainElement(nav);
   });
 
   it("keeps signed-out chrome non-interactive besides the landing content", async () => {
