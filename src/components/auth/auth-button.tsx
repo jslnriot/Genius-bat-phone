@@ -24,31 +24,6 @@ async function startGoogleOAuth(returnTo?: string | null) {
   });
 }
 
-export function AuthSignUpLink() {
-  const [isPending, setIsPending] = useState(false);
-
-  async function handleClick() {
-    setIsPending(true);
-
-    const { error } = await startGoogleOAuth("/onboarding");
-
-    if (error) {
-      setIsPending(false);
-    }
-  }
-
-  return (
-    <button
-      type="button"
-      className="text-action text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 disabled:opacity-50"
-      onClick={handleClick}
-      disabled={isPending}
-    >
-      {isPending ? "Redirecting…" : "Sign up"}
-    </button>
-  );
-}
-
 export function AuthButton(props: AuthButtonProps) {
   const { mode } = props;
   const router = useRouter();
@@ -102,7 +77,7 @@ export function AuthButton(props: AuthButtonProps) {
             ? "Redirecting…"
             : "Signing out…"
           : mode === "sign-in"
-            ? "Sign in with Google"
+            ? "Continue with Google"
             : "Sign out"}
       </Button>
       {error ? (

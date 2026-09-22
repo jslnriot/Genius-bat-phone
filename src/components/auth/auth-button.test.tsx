@@ -20,7 +20,7 @@ vi.mock("next/navigation", () => ({
   })),
 }));
 
-import { AuthButton, AuthSignUpLink } from "./auth-button";
+import { AuthButton } from "./auth-button";
 
 describe("AuthButton", () => {
   beforeEach(() => {
@@ -41,7 +41,7 @@ describe("AuthButton", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: "Sign in with Google" }),
+      screen.getByRole("button", { name: "Continue with Google" }),
     );
 
     expect(signInWithOAuth).toHaveBeenCalledWith({
@@ -53,16 +53,51 @@ describe("AuthButton", () => {
     });
   });
 
-  it("starts Google sign-up with onboarding as the return path", async () => {
-    render(<AuthSignUpLink />);
+  it("starts Google OAuth without a return path by default", async () => {
+    render(<AuthButton mode="sign-in" />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Sign up" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Continue with Google" }),
+    );
 
     expect(signInWithOAuth).toHaveBeenCalledWith({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:3000/auth/callback?next=%2Fonboarding",
+        redirectTo: "http://localhost:3000/auth/callback",
       },
     });
+  });
+
+  it("disables the button while redirecting", async () => {
+    let resolveOAuth: (value: { error: null }) => void = () => {};
+    signInWithOAuth.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveOAuth = resolve;
+        }),
+    );
+
+    render(<AuthButton mode="sign-in" />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Continue with Google" }),
+    );
+
+    expect(screen.getByRole("button", { name: "Redirecting…" })).toBeDisabled();
+    resolveOAuth({ error: null });
+  });
+
+  it("announces when Google OAuth cannot start", async () => {
+    signInWithOAuth.mockResolvedValue({ error: { message: "fail" } });
+
+    render(<AuthButton mode="sign-in" />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Continue with Google" }),
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Google sign-in could not be started. Please try again.",
+    );
   });
 });
