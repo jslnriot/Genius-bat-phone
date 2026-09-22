@@ -98,7 +98,7 @@ describe("ContactsPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows the Bat Phone number after a contact exists", async () => {
+  it("keeps populated contacts focused on management", async () => {
     mocks.query.order.mockResolvedValue({
       data: [
         {
@@ -115,13 +115,7 @@ describe("ContactsPage", () => {
 
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Ready to make a call?" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Copy number" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Call Bat Phone" }),
+      screen.queryByRole("heading", { name: "Ready to make a call?" }),
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add contact" }),

@@ -3,7 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppHeader } from "@/components/app-header";
 import { BottomNav } from "@/components/bottom-nav";
-import { getAccountCounts } from "@/lib/account-counts";
+import { resolveDefaultAppPath } from "@/lib/app-routing";
 import { getAccountDisplayName, getAccountInitials } from "@/lib/account-initials";
 import { getCallingNumber } from "@/lib/calling-number";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
@@ -39,10 +39,10 @@ export default async function RootLayout({
     ? await getCallingNumber(supabase, user.id)
     : null;
   const showAppNav = Boolean(user && callingNumber);
-  const accountCounts =
+  const homeHref =
     showAppNav && user
-      ? await getAccountCounts(supabase, user.id)
-      : null;
+      ? await resolveDefaultAppPath(supabase, user.id, callingNumber)
+      : undefined;
 
   return (
     <html lang="en">
@@ -61,16 +61,14 @@ export default async function RootLayout({
           )}
         >
           <AppHeader
-            homeHref={showAppNav ? "/contacts" : undefined}
+            homeHref={homeHref}
             account={
-              showAppNav && user?.email && callingNumber && accountCounts
+              showAppNav && user?.email && callingNumber
                 ? {
                     email: user.email,
                     initials: getAccountInitials(user),
                     displayName: getAccountDisplayName(user),
                     callingNumber: e164ToDisplayPhone(callingNumber),
-                    contactCount: accountCounts.contactCount,
-                    callCount: accountCounts.callCount,
                   }
                 : undefined
             }

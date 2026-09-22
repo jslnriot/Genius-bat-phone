@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   authGetUser: vi.fn(),
   maybeSingle: vi.fn(),
+  contactsLimit: vi.fn(),
   redirect: vi.fn((path: string) => {
     throw new Error(`redirect:${path}`);
   }),
@@ -13,13 +14,27 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(async () => ({
     auth: { getUser: mocks.authGetUser },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: mocks.maybeSingle,
-        })),
-      })),
-    })),
+    from: vi.fn((table: string) => {
+      if (table === "profiles") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: mocks.maybeSingle,
+            })),
+          })),
+        };
+      }
+      if (table === "contacts") {
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              limit: mocks.contactsLimit,
+            })),
+          })),
+        };
+      }
+      throw new Error(`Unexpected table: ${table}`);
+    }),
   })),
 }));
 
@@ -45,6 +60,7 @@ describe("OnboardingPage", () => {
       data: { user: { id: "user-1", email: "ada@example.com" } },
     });
     mocks.maybeSingle.mockResolvedValue({ data: { phone_number: null } });
+    mocks.contactsLimit.mockResolvedValue({ data: [], error: null });
     mocks.AuthButton.mockImplementation(
       (props: { mode: "sign-in" | "sign-out" }) => (
         <button>
@@ -103,5 +119,25 @@ describe("OnboardingPage", () => {
     mocks.authGetUser.mockResolvedValue({ data: { user: null } });
 
     await expect(OnboardingPage()).rejects.toThrow("redirect:/account");
+  });
+
+  it("redirects configured users without contacts to contacts", async () => {
+    mocks.maybeSingle.mockResolvedValue({
+      data: { phone_number: "+14165550100" },
+    });
+
+    await expect(OnboardingPage()).rejects.toThrow("redirect:/contacts");
+  });
+
+  it("redirects configured users with contacts to calls", async () => {
+    mocks.maybeSingle.mockResolvedValue({
+      data: { phone_number: "+14165550100" },
+    });
+    mocks.contactsLimit.mockResolvedValue({
+      data: [{ id: "contact-1" }],
+      error: null,
+    });
+
+    await expect(OnboardingPage()).rejects.toThrow("redirect:/calls");
   });
 });

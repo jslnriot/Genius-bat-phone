@@ -4,9 +4,8 @@ const mocks = vi.hoisted(() => ({
   exchangeCodeForSession: vi.fn(),
   from: vi.fn(),
   getUser: vi.fn(),
-  select: vi.fn(),
-  eq: vi.fn(),
-  single: vi.fn(),
+  profileMaybeSingle: vi.fn(),
+  contactsLimit: vi.fn(),
 }));
 
 vi.mock("@/utils/supabase/server", () => ({
@@ -25,15 +24,31 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.exchangeCodeForSession.mockResolvedValue({ error: null });
   mocks.getUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
-  mocks.from.mockReturnValue({
-    select: mocks.select.mockReturnValue({
-      eq: mocks.eq.mockReturnValue({
-        maybeSingle: mocks.single,
-        single: mocks.single,
-      }),
-    }),
+  mocks.profileMaybeSingle.mockResolvedValue({
+    data: { phone_number: "+14165550100" },
   });
-  mocks.single.mockResolvedValue({ data: { phone_number: "+14165550100" } });
+  mocks.contactsLimit.mockResolvedValue({ data: [], error: null });
+  mocks.from.mockImplementation((table: string) => {
+    if (table === "profiles") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: mocks.profileMaybeSingle,
+          }),
+        }),
+      };
+    }
+    if (table === "contacts") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            limit: mocks.contactsLimit,
+          }),
+        }),
+      };
+    }
+    throw new Error(`Unexpected table: ${table}`);
+  });
 });
 
 describe("GET /auth/callback", () => {
@@ -114,7 +129,7 @@ describe("GET /auth/callback", () => {
     expect(setCookie).toMatch(/Path=\/auth\/callback/);
   });
 
-  it("sends a configured user to contacts when no return path exists", async () => {
+  it("sends a configured user without contacts to contacts when no return path exists", async () => {
     const response = await GET(
       new Request(
         "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
@@ -126,8 +141,25 @@ describe("GET /auth/callback", () => {
     );
   });
 
+  it("sends a configured user with contacts to calls when no return path exists", async () => {
+    mocks.contactsLimit.mockResolvedValue({
+      data: [{ id: "contact-1" }],
+      error: null,
+    });
+
+    const response = await GET(
+      new Request(
+        "https://genius-bat-phone.vercel.app/auth/callback?code=abc",
+      ),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://genius-bat-phone.vercel.app/calls",
+    );
+  });
+
   it("falls back to onboarding when no phone number is configured", async () => {
-    mocks.single.mockResolvedValue({ data: { phone_number: null } });
+    mocks.profileMaybeSingle.mockResolvedValue({ data: { phone_number: null } });
 
     const response = await GET(
       new Request(
@@ -141,7 +173,7 @@ describe("GET /auth/callback", () => {
   });
 
   it("sends an incomplete profile to onboarding even when a return path exists", async () => {
-    mocks.single.mockResolvedValue({ data: { phone_number: null } });
+    mocks.profileMaybeSingle.mockResolvedValue({ data: { phone_number: null } });
 
     const response = await GET(
       new Request(

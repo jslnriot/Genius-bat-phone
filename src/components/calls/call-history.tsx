@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   formatCallDuration,
@@ -12,8 +11,6 @@ import {
   type CallStatus,
 } from "@/lib/calls";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
-import { cn } from "@/lib/utils";
-
 function isMeaningfulStatus(label: CallStatus["label"]) {
   return label !== "Completed";
 }
@@ -21,21 +18,13 @@ function isMeaningfulStatus(label: CallStatus["label"]) {
 export function CallHistory({ calls }: { calls: CallRecord[] }) {
   if (calls.length === 0) {
     return (
-      <Card className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold leading-6 text-primary">
-            No calls yet
-          </h2>
-          <p className="text-sm leading-5 text-secondary-text">
-            Calls you make through Bat Phone will appear here.
-          </p>
-        </div>
-        <Link
-          href="/contacts"
-          className={cn(buttonVariants({ variant: "secondary" }), "w-full")}
-        >
-          View contacts
-        </Link>
+      <Card className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold leading-6 text-primary">
+          No calls yet
+        </h2>
+        <p className="text-sm leading-5 text-secondary-text">
+          Calls you make through Bat Phone will appear here.
+        </p>
       </Card>
     );
   }

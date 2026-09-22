@@ -22,15 +22,8 @@ const existingContact: ContactRecord = {
   created_at: "2026-09-01T12:00:00.000Z",
 };
 
-const BAT_PHONE_NUMBER = "+12892782417";
-
 function renderContactManager(initialContacts: ContactRecord[] = []) {
-  return render(
-    <ContactManager
-      initialContacts={initialContacts}
-      batPhoneNumber={BAT_PHONE_NUMBER}
-    />,
-  );
+  return render(<ContactManager initialContacts={initialContacts} />);
 }
 
 describe("ContactManager", () => {
@@ -85,8 +78,8 @@ describe("ContactManager", () => {
     expect(await screen.findByText("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByText("(212) 555-0199")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Ready to make a call?" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: "Ready to make a call?" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("heading", { name: "No contacts yet" }),
     ).not.toBeInTheDocument();
@@ -287,33 +280,19 @@ describe("ContactManager", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows how to call Bat Phone once a contact exists", () => {
+  it("focuses on contact management once contacts exist", () => {
     renderContactManager([existingContact]);
 
     expect(
-      screen.getByRole("heading", { name: "Ready to make a call?" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("(289) 278-2417")).toBeInTheDocument();
-    expect(
-      screen.getByText("Call Bat Phone from your registered phone:"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("When prompted, say the name of one of your contacts."),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Copy number" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Call Bat Phone" }),
+      screen.queryByRole("heading", { name: "Ready to make a call?" }),
     ).not.toBeInTheDocument();
-    expect(document.querySelector('a[href^="tel:"]')).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Copy number" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add contact" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add contact" })).toHaveClass(
-      "bg-[var(--color-action)]",
-    );
-    expect(screen.getByRole("button", { name: "Copy number" })).not.toHaveClass(
       "bg-[var(--color-action)]",
     );
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();

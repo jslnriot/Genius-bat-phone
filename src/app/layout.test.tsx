@@ -32,14 +32,14 @@ vi.mock("@/utils/supabase/server", () => ({
       }
       if (table === "contacts") {
         return {
-          select: vi.fn().mockResolvedValue({ count: 2, error: null }),
-        };
-      }
-      if (table === "calls") {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn().mockResolvedValue({ count: 5, error: null }),
-          })),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue({
+                data: [{ id: "contact-1" }],
+                error: null,
+              }),
+            }),
+          }),
         };
       }
       throw new Error(`unexpected table ${table}`);
@@ -108,7 +108,7 @@ describe("RootLayout", () => {
     expect(screen.getByRole("link", { name: /^Account$/ })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Bat Phone home" })).toHaveAttribute(
       "href",
-      "/contacts",
+      "/calls",
     );
     const accountIdentity = screen.getByRole("button", {
       name: "Open account menu for ada@example.com",

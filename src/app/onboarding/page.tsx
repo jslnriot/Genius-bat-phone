@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthButton } from "@/components/auth/auth-button";
 import { OnboardingForm } from "@/components/auth/onboarding-form";
+import { resolveDefaultAppPath } from "@/lib/app-routing";
 import { getCallingNumber } from "@/lib/calling-number";
 import { createClient } from "@/utils/supabase/server";
 
@@ -17,7 +18,7 @@ export default async function OnboardingPage() {
 
   const callingNumber = await getCallingNumber(supabase, user.id);
   if (callingNumber) {
-    redirect("/contacts");
+    redirect(await resolveDefaultAppPath(supabase, user.id, callingNumber));
   }
 
   return (

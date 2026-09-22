@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolveDefaultAppPath } from "@/lib/app-routing";
 import { getCallingNumber } from "@/lib/calling-number";
 import {
   RETURN_TO_COOKIE,
@@ -55,5 +56,10 @@ export async function GET(request: Request) {
     return finishAuthRedirect(`${origin}${safeNext}`);
   }
 
-  return finishAuthRedirect(`${origin}/contacts`);
+  const defaultPath = await resolveDefaultAppPath(
+    supabase,
+    user.id,
+    callingNumber,
+  );
+  return finishAuthRedirect(`${origin}${defaultPath}`);
 }

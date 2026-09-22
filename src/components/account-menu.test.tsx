@@ -23,8 +23,6 @@ const account = {
   initials: "JB",
   displayName: "James Buczkowski",
   callingNumber: "(716) 406-7468",
-  contactCount: 2,
-  callCount: 5,
 };
 
 describe("AccountMenu", () => {
@@ -52,6 +50,8 @@ describe("AccountMenu", () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Contacts/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Calls/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/contacts/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/calls/i)).not.toBeInTheDocument();
   });
 
   it("shows identity, calling number, and account actions in the menu", async () => {
@@ -78,37 +78,9 @@ describe("AccountMenu", () => {
       "/account",
     );
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Contacts/ })).toHaveAttribute(
-      "href",
-      "/contacts",
-    );
-    expect(screen.getByRole("link", { name: /Calls/ })).toHaveAttribute(
-      "href",
-      "/calls",
-    );
-    expect(screen.getByText("2 contacts")).toBeInTheDocument();
-    expect(screen.getByText("5 calls")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Contacts/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Calls/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/analytics/i)).not.toBeInTheDocument();
-  });
-
-  it("uses singular labels for single contact or call", async () => {
-    const user = userEvent.setup();
-    render(
-      <AccountMenu
-        {...account}
-        contactCount={1}
-        callCount={1}
-      />,
-    );
-
-    await user.click(
-      screen.getByRole("button", {
-        name: "Open account menu for james@example.com",
-      }),
-    );
-
-    expect(screen.getByText("1 contact")).toBeInTheDocument();
-    expect(screen.getByText("1 call")).toBeInTheDocument();
   });
 
   it("shows email only when a display name is unavailable", async () => {

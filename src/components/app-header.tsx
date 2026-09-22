@@ -9,8 +9,6 @@ type AppHeaderProps = {
     initials: string;
     displayName: string | null;
     callingNumber: string;
-    contactCount: number;
-    callCount: number;
   };
 };
 

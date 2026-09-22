@@ -23,8 +23,8 @@ describe("BottomNav", () => {
     const links = within(nav).getAllByRole("link");
 
     expect(links.map((link) => link.textContent)).toEqual([
-      "Contacts",
       "Calls",
+      "Contacts",
       "Account",
     ]);
     expect(links).toHaveLength(3);

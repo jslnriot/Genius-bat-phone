@@ -58,10 +58,9 @@ describe("CallHistory", () => {
     expect(
       screen.getByText("Calls you make through Bat Phone will appear here."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View contacts" })).toHaveAttribute(
-      "href",
-      "/contacts",
-    );
+    expect(
+      screen.queryByRole("link", { name: "View contacts" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows a transcribing call from the stored snapshot name", () => {

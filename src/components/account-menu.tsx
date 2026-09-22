@@ -4,7 +4,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, Settings } from "lucide-react";
-import { AccountActivitySummary } from "@/components/account-activity-summary";
 import { signOutToAccount } from "@/components/auth/sign-out";
 
 export type AccountMenuProps = {
@@ -12,8 +11,6 @@ export type AccountMenuProps = {
   initials: string;
   displayName: string | null;
   callingNumber: string;
-  contactCount: number;
-  callCount: number;
 };
 
 export function AccountMenu({
@@ -21,8 +18,6 @@ export function AccountMenu({
   initials,
   displayName,
   callingNumber,
-  contactCount,
-  callCount,
 }: AccountMenuProps) {
   const router = useRouter();
   const menuId = useId();
@@ -117,12 +112,6 @@ export function AccountMenu({
               </p>
               <p className="text-base leading-6 text-primary">{callingNumber}</p>
             </div>
-            <AccountActivitySummary
-              contactCount={contactCount}
-              callCount={callCount}
-              variant="menu"
-              onNavigate={() => setOpen(false)}
-            />
             <Link
               href="/account"
               className="flex min-h-11 items-center gap-3 rounded-(--radius-button) px-2 -mx-2 text-sm font-medium text-primary transition-colors hover:bg-muted-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"

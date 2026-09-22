@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const query = {
@@ -49,7 +49,15 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("@/lib/twilio/environment", () => ({
+  getTwilioPhoneNumber: () => "+12892782417",
+}));
+
 import CallsPage from "./page";
+
+afterEach(() => {
+  cleanup();
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -116,9 +124,17 @@ describe("CallsPage", () => {
     expect(screen.getByText(/10 sec/)).toBeInTheDocument();
   });
 
-  it("shows a customer-facing empty state", async () => {
+  it("shows the compact Bat Phone utility and empty history state", async () => {
     render(await CallsPage());
 
+    expect(screen.getByLabelText("Call Bat Phone")).toBeInTheDocument();
+    expect(screen.getByText("(289) 278-2417")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Call from your registered phone and say a contact's name.",
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "No calls yet" }),
     ).toBeInTheDocument();

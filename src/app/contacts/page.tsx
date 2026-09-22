@@ -4,7 +4,6 @@ import {
 } from "@/components/contacts/contact-manager";
 import { getCallingNumber } from "@/lib/calling-number";
 import type { ContactRecord } from "@/lib/contact-validation";
-import { getTwilioPhoneNumber } from "@/lib/twilio/environment";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function ContactsPage() {
@@ -26,8 +25,6 @@ export default async function ContactsPage() {
     .from("contacts")
     .select("id, name, phone_number, created_at")
     .order("created_at", { ascending: false });
-  const batPhoneNumber = getTwilioPhoneNumber();
-
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
@@ -52,10 +49,7 @@ export default async function ContactsPage() {
           </p>
         </div>
       ) : (
-        <ContactManager
-          initialContacts={(data ?? []) as ContactRecord[]}
-          batPhoneNumber={batPhoneNumber}
-        />
+        <ContactManager initialContacts={(data ?? []) as ContactRecord[]} />
       )}
     </div>
   );

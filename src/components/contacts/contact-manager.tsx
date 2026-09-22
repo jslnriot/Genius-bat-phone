@@ -11,7 +11,6 @@ import {
   deleteContact,
   updateContact,
 } from "@/app/contacts/actions";
-import { ReadyToCall } from "@/components/contacts/ready-to-call";
 import {
   CONTACT_NAME_MAX_LENGTH,
   displayPhoneToE164,
@@ -25,16 +24,12 @@ import {
 
 type ContactManagerProps = {
   initialContacts: ContactRecord[];
-  batPhoneNumber: string;
 };
 
 const destructiveOutlineClassName =
   "min-h-11 w-full border border-error/30 bg-white hover:bg-error/10";
 
-export function ContactManager({
-  initialContacts,
-  batPhoneNumber,
-}: ContactManagerProps) {
+export function ContactManager({ initialContacts }: ContactManagerProps) {
   const [contacts, setContacts] = useState(initialContacts);
   const [editingContact, setEditingContact] = useState<ContactRecord | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -189,10 +184,6 @@ export function ContactManager({
 
   return (
     <div className="flex flex-col gap-6">
-      {hasContacts ? (
-        <ReadyToCall batPhoneNumber={batPhoneNumber} />
-      ) : null}
-
       {!formIsOpen && !hasContacts ? (
         <Card className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">

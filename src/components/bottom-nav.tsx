@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   {
-    label: "Contacts",
-    href: "/contacts",
-    icon: Users,
-  },
-  {
     label: "Calls",
     href: "/calls",
     icon: Phone,
+  },
+  {
+    label: "Contacts",
+    href: "/contacts",
+    icon: Users,
   },
   {
     label: "Account",

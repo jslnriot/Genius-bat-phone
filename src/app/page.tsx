@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { resolveDefaultAppPath } from "@/lib/app-routing";
 import { getCallingNumber } from "@/lib/calling-number";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,5 +14,5 @@ export default async function Home() {
   }
 
   const callingNumber = await getCallingNumber(supabase, user.id);
-  redirect(callingNumber ? "/contacts" : "/onboarding");
+  redirect(await resolveDefaultAppPath(supabase, user.id, callingNumber));
 }

@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
+import { BatPhoneCallUtility } from "@/components/calls/bat-phone-call-utility";
 import { CallHistory } from "@/components/calls/call-history";
 import { getCallingNumber } from "@/lib/calling-number";
+import { getTwilioPhoneNumber } from "@/lib/twilio/environment";
 import { CALL_RECORD_SELECT, type CallRecord } from "@/lib/calls";
 import { createClient } from "@/utils/supabase/server";
 
@@ -45,6 +47,8 @@ export default async function CallsPage() {
           Your call history and recordings.
         </p>
       </header>
+
+      <BatPhoneCallUtility batPhoneNumber={getTwilioPhoneNumber()} />
 
       {error ? (
         <div

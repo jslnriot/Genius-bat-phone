@@ -13,8 +13,6 @@ const account = {
   initials: "JB",
   displayName: "James Buczkowski",
   callingNumber: "(716) 406-7468",
-  contactCount: 2,
-  callCount: 5,
 };
 
 describe("AppHeader", () => {
@@ -37,12 +35,12 @@ describe("AppHeader", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("links configured users home to Contacts", () => {
-    render(<AppHeader homeHref="/contacts" />);
+  it("links configured users home to their default activity destination", () => {
+    render(<AppHeader homeHref="/calls" />);
 
     expect(screen.getByRole("link", { name: "Bat Phone home" })).toHaveAttribute(
       "href",
-      "/contacts",
+      "/calls",
     );
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
     expect(
@@ -52,7 +50,7 @@ describe("AppHeader", () => {
 
   it("shows a compact identity control that opens the account menu", async () => {
     const user = userEvent.setup();
-    render(<AppHeader homeHref="/contacts" account={account} />);
+    render(<AppHeader homeHref="/calls" account={account} />);
 
     expect(screen.getByText("Bat Phone")).toBeInTheDocument();
     expect(
@@ -72,13 +70,7 @@ describe("AppHeader", () => {
       "href",
       "/account",
     );
-    expect(screen.getByRole("link", { name: /Contacts/ })).toHaveAttribute(
-      "href",
-      "/contacts",
-    );
-    expect(screen.getByRole("link", { name: /Calls/ })).toHaveAttribute(
-      "href",
-      "/calls",
-    );
+    expect(screen.queryByRole("link", { name: /Contacts/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Calls/ })).not.toBeInTheDocument();
   });
 });
