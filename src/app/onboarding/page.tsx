@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
           Set up your calling number
         </h1>
         <p className="text-sm leading-5 text-secondary-text">
-          Bat Phone uses your phone number to recognize you when you call.
+          Bat Phone uses this number to recognize you when you call.
         </p>
       </header>
 

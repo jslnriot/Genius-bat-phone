@@ -96,6 +96,9 @@ describe("ContactsPage", () => {
     expect(
       screen.queryByRole("heading", { name: "Ready to make a call?" }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Ready to make a call? Open Calls."),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps populated contacts focused on management", async () => {
@@ -119,6 +122,9 @@ describe("ContactsPage", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add contact" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Ready to make a call? Open Calls."),
     ).toBeInTheDocument();
   });
 });

@@ -25,6 +25,8 @@ export default async function ContactsPage() {
     .from("contacts")
     .select("id, name, phone_number, created_at")
     .order("created_at", { ascending: false });
+  const hasContacts = (data?.length ?? 0) > 0;
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
@@ -34,6 +36,11 @@ export default async function ContactsPage() {
         <p className="text-sm text-[var(--color-secondary-text)]">
           People you can reach through Bat Phone.
         </p>
+        {!error && hasContacts ? (
+          <p className="text-sm text-[var(--color-secondary-text)]">
+            Ready to make a call? Open Calls.
+          </p>
+        ) : null}
       </header>
 
       {error ? (

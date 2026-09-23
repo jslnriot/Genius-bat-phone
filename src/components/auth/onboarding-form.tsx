@@ -58,7 +58,7 @@ export function OnboardingForm() {
         name="phone_number"
         autoComplete="tel"
         placeholder="(555) 000-0000"
-        hint="Use the number you’ll call Bat Phone from."
+        hint="Enter the number you’ll call Bat Phone from."
         value={phoneNumber}
         error={phoneError}
         onChange={(event) => {

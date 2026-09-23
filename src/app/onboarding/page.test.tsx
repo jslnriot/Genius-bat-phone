@@ -85,7 +85,7 @@ describe("OnboardingPage", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Bat Phone uses your phone number to recognize you when you call.",
+        "Bat Phone uses this number to recognize you when you call.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("Calling number")).toBeInTheDocument();

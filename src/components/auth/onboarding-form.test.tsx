@@ -34,10 +34,10 @@ describe("OnboardingForm", () => {
     render(<OnboardingForm />);
 
     expect(
-      screen.getByText("Use the number you’ll call Bat Phone from."),
+      screen.getByText("Enter the number you’ll call Bat Phone from."),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Phone number")).toHaveAccessibleDescription(
-      "Use the number you’ll call Bat Phone from.",
+      "Enter the number you’ll call Bat Phone from.",
     );
   });
 
