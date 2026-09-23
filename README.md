@@ -6,7 +6,7 @@ Take-home full-stack project for Genius: an AI-assisted employee calling tool.
 
 - Live application: [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
 - Recorded demo: PLACEHOLDER_DEMO_URL
-- Employee quick start: [docs/QUICK_START_GUIDE.md](docs/QUICK_START_GUIDE.md)
+- Employee quick start: [docs/QUICK_START_GUIDE.md](docs/QUICK_START_GUIDE.md) ([PDF](docs/QUICK_START_GUIDE.pdf))
 - Architecture: [docs/ARCHITECTURE_DESIGN_DOC.md](docs/ARCHITECTURE_DESIGN_DOC.md)
 - Source map: [src/README.md](src/README.md)
 

@@ -4,6 +4,8 @@ Bat Phone lets you call saved contacts through one shared number. Calls are reco
 
 **Live app:** [https://genius-bat-phone.vercel.app](https://genius-bat-phone.vercel.app)
 
+**PDF (internal, printable):** [QUICK_START_GUIDE.pdf](./QUICK_START_GUIDE.pdf) — regenerate with `npm run docs:quick-start-pdf` after screenshot or copy changes.
+
 ---
 
 ## 1. Sign in

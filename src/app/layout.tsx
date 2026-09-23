@@ -7,6 +7,7 @@ import { resolveDefaultAppPath } from "@/lib/app-routing";
 import { getAccountDisplayName, getAccountInitials } from "@/lib/account-initials";
 import { getCallingNumber } from "@/lib/calling-number";
 import { e164ToDisplayPhone } from "@/lib/contact-validation";
+import { productMetadata } from "@/lib/product-metadata";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 
@@ -16,14 +17,16 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bat Phone Live Demo",
-  description: "Internal employee calling tool",
+  title: productMetadata.title,
+  description: productMetadata.description,
+  applicationName: productMetadata.applicationName,
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#FFFFFF",
 };
 
 export default async function RootLayout({

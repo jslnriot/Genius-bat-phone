@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bat Phone — Quick Start Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #16324f;
+        --action: #2563eb;
+        --secondary: #64748b;
+        --border: #e2e8f0;
+        --bg: #f7f9fc;
+        --white: #ffffff;
+        --radius-card: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      @page {
+        size: letter;
+        margin: 0;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        font-size: 11pt;
+        line-height: 1.45;
+        color: var(--primary);
+        background: var(--white);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        width: 8.5in;
+        min-height: 11in;
+        padding: 0.65in 0.75in 0.7in;
+        page-break-after: always;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page:last-child {
+        page-break-after: auto;
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14pt;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .wordmark svg {
+        color: var(--action);
+        flex-shrink: 0;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+      }
+
+      .page-header .meta {
+        font-size: 9pt;
+        color: var(--secondary);
+      }
+
+      h1 {
+        font-size: 26pt;
+        line-height: 1.15;
+        font-weight: 700;
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        font-size: 16pt;
+        font-weight: 600;
+        margin: 0 0 10px;
+        line-height: 1.25;
+      }
+
+      .lead {
+        font-size: 12pt;
+        color: var(--secondary);
+        margin: 0 0 16px;
+        max-width: 36em;
+      }
+
+      ul.steps {
+        margin: 0 0 16px;
+        padding-left: 1.15em;
+        color: var(--primary);
+      }
+
+      ul.steps li {
+        margin-bottom: 6px;
+      }
+
+      ul.steps li::marker {
+        color: var(--action);
+        font-weight: 600;
+      }
+
+      .callout {
+        margin: 0 0 14px;
+        padding: 10px 12px;
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        border-radius: var(--radius-card);
+        background: rgba(37, 99, 235, 0.07);
+        font-size: 10.5pt;
+        color: var(--primary);
+      }
+
+      .shot {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 14px;
+        min-height: 0;
+      }
+
+      .shot img {
+        max-height: 7.4in;
+        width: auto;
+        max-width: 100%;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      }
+
+      .shot-duo img {
+        max-height: 6.2in;
+        max-width: calc(50% - 7px);
+      }
+
+      .cover {
+        background: var(--bg);
+        justify-content: center;
+        align-items: stretch;
+        text-align: left;
+      }
+
+      .cover-inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0.25in 0;
+      }
+
+      .cover .badge {
+        display: inline-block;
+        font-size: 9pt;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--action);
+        margin-bottom: 16px;
+      }
+
+      .cover .subtitle {
+        font-size: 13pt;
+        color: var(--secondary);
+        margin: 0 0 28px;
+        max-width: 28em;
+      }
+
+      .cover .url {
+        font-size: 11pt;
+        font-weight: 500;
+        color: var(--action);
+      }
+
+      .cover-footer {
+        font-size: 9pt;
+        color: var(--secondary);
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+      }
+
+      .troubleshoot {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 20px;
+        font-size: 9.5pt;
+        margin-top: 12px;
+      }
+
+      .troubleshoot dt {
+        font-weight: 600;
+        margin: 0 0 2px;
+      }
+
+      .troubleshoot dd {
+        margin: 0;
+        color: var(--secondary);
+      }
+
+      .step-num {
+        color: var(--action);
+        font-weight: 700;
+        margin-right: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page 1: Cover -->
+    <section class="page cover">
+      <div class="cover-inner">
+        <div class="wordmark" style="margin-bottom: 48px">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <p class="badge">Internal · Employee quick start</p>
+        <h1>Quick Start Guide</h1>
+        <p class="subtitle">
+          Call saved contacts through one shared number. Recordings, transcripts,
+          and history are saved automatically.
+        </p>
+        <p class="url">genius-bat-phone.vercel.app</p>
+      </div>
+      <p class="cover-footer">
+        For questions about access or calling numbers, contact your Bat Phone
+        administrator.
+      </p>
+    </section>
+
+    <!-- Page 2: Sign in -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">1 · Sign in</span>
+      </header>
+      <h2><span class="step-num">1</span>Sign in</h2>
+      <ul class="steps">
+        <li>Open Bat Phone in your browser.</li>
+        <li>Tap <strong>Continue with Google</strong> and sign in with your work account.</li>
+      </ul>
+      <div class="shot">
+        <img src="./screenshots/01-sign-in.png" alt="Sign-in landing page" />
+      </div>
+    </section>
+
+    <!-- Page 3: Calling number -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">2 · Calling number</span>
+      </header>
+      <h2><span class="step-num">2</span>Set up your calling number</h2>
+      <ul class="steps">
+        <li>Enter the phone you will <strong>dial from</strong>.</li>
+        <li>Bat Phone uses it to recognize you. Change it anytime in <strong>Account</strong>.</li>
+      </ul>
+      <div class="shot">
+        <img src="./screenshots/02-calling-number.png" alt="Calling number setup" />
+      </div>
+    </section>
+
+    <!-- Page 4: Contacts -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">3 · Contacts</span>
+      </header>
+      <h2><span class="step-num">3</span>Add a contact</h2>
+      <ul class="steps">
+        <li>On <strong>Contacts</strong>, tap <strong>Add contact</strong> (or <strong>Add your first contact</strong>).</li>
+        <li>Save the name and number Bat Phone should connect you to.</li>
+      </ul>
+      <div class="shot shot-duo">
+        <img src="./screenshots/03-contacts-empty.png" alt="Empty contacts" />
+        <img src="./screenshots/04-contact-added.png" alt="Contact list" />
+      </div>
+    </section>
+
+    <!-- Page 5: Make a call -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">4 · Make a call</span>
+      </header>
+      <h2><span class="step-num">4</span>Make a call</h2>
+      <ul class="steps">
+        <li>Open <strong>Calls</strong>. Copy <strong>(289) 278-2417</strong> if needed.</li>
+        <li>Dial from your registered phone (see <strong>Account</strong>).</li>
+      </ul>
+      <p class="callout">
+        Call this number from your registered phone. When prompted, say a
+        contact&rsquo;s name, or follow the keypad instructions.
+      </p>
+      <div class="shot">
+        <img src="./screenshots/05-calls-home.png" alt="Calls home" />
+      </div>
+    </section>
+
+    <!-- Page 6: Call detail -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">5 · Call history &amp; detail</span>
+      </header>
+      <h2><span class="step-num">5</span>Review a call</h2>
+      <ul class="steps">
+        <li>Tap a row in <strong>Calls</strong> to open call detail.</li>
+        <li><strong>Play</strong> or <strong>Download recording</strong>. Use <strong>Copy</strong> on the transcript when ready.</li>
+      </ul>
+      <div class="shot">
+        <img src="./screenshots/06-call-detail.png" alt="Call detail" />
+      </div>
+    </section>
+
+    <!-- Page 7: Transcript + troubleshooting -->
+    <section class="page">
+      <header class="page-header">
+        <div class="wordmark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+            />
+          </svg>
+          Bat Phone
+        </div>
+        <span class="meta">6 · Transcript &amp; help</span>
+      </header>
+      <h2><span class="step-num">6</span>Transcript</h2>
+      <p class="lead" style="margin-bottom: 12px">
+        Transcripts may take a short time after the call ends.
+      </p>
+      <div class="shot" style="flex: 0 1 auto; margin-bottom: 18px">
+        <img
+          src="./screenshots/07-transcript.png"
+          alt="Transcript"
+          style="max-height: 4.5in"
+        />
+      </div>
+      <h2 style="font-size: 12pt; margin-bottom: 8px">Quick troubleshooting</h2>
+      <dl class="troubleshoot">
+        <div>
+          <dt>Not recognized?</dt>
+          <dd>Call from the number in Account.</dd>
+        </div>
+        <div>
+          <dt>Contact not found?</dt>
+          <dd>Say the name again or use keypad prompts.</dd>
+        </div>
+        <div>
+          <dt>No transcript yet?</dt>
+          <dd>Wait and reopen the call.</dd>
+        </div>
+        <div>
+          <dt>New phone?</dt>
+          <dd>Update Calling number in Account.</dd>
+        </div>
+      </dl>
+    </section>
+  </body>
+</html>
