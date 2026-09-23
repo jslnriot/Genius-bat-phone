@@ -74,9 +74,9 @@ Each row shows:
 - Contact name (or the name captured on the call)
 - Date and time
 - Duration
-- **Transcript Ready** (or similar status) when a transcript is available
+- Status when it matters — for example **Transcript Ready** after a connected call, or **No answer** if the contact did not pick up
 
-Tap a call to open its detail page.
+Tap a call to open its detail page. Unsuccessful attempts still appear in history; the detail page explains that recording and transcript apply when the contact answers.
 
 ![Call history on the Calls screen](./screenshots/05-calls-home.png)
 
@@ -118,6 +118,31 @@ Transcription runs after the call ends and may take a short time. Refresh **Call
 ### I need to change my calling number
 
 Open **Account**, edit **Calling number**, and save. Future calls must come from the updated number.
+
+### A call stays on “Calling” in the app
+
+The contact leg may still be ringing, or Bat Phone may not have received the final result from Twilio yet. Refresh **Calls** after the call ends. If the status never updates, your administrator should confirm Twilio webhooks to `/api/twilio/dial-complete` are succeeding (HTTP 200).
+
+---
+
+## Appendix: Demo script (presenters)
+
+Use this once before a live demo, then walk through it on stage.
+
+**Pre-flight (no app deploy required):**
+
+1. In Twilio **Debugger**, confirm recent voice webhooks to `/api/twilio/dial-complete` return **200**.
+2. From your **registered** phone, call Bat Phone, name a consenting contact who will **not answer**, and let the call finish.
+3. In **Calls**, confirm a new row with that contact’s name and a **No answer** badge; open it and confirm there is no recording or transcript.
+
+**On stage:**
+
+1. Show **Calls** and a completed call (recording + transcript) if you have one.
+2. Place a Bat Phone call to a contact who agrees not to answer (or replay the pre-flight row).
+3. On the phone, note the spoken message that the contact did not answer.
+4. Open **Calls** → tap the attempt → point out the **No answer** badge and the short explanation under the title; recording and transcript sections state nothing was captured.
+
+Busy, failed, and canceled attempts behave the same way in history with matching status badges.
 
 ---
 

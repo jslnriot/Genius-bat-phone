@@ -21,6 +21,14 @@ afterEach(() => {
 });
 
 describe("CallDetail", () => {
+  it("does not show unsuccessful dial summary for completed calls", () => {
+    render(<CallDetail call={call} />);
+
+    expect(
+      screen.queryByText(/You can call Bat Phone again anytime/),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders the transcript and protected recording player", () => {
     const { container } = render(<CallDetail call={call} />);
 
@@ -107,6 +115,11 @@ describe("CallDetail", () => {
     );
 
     expect(screen.getByText("No answer")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "The contact did not answer. You can call Bat Phone again anytime.",
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("No recording is available for this call."),
     ).toBeInTheDocument();

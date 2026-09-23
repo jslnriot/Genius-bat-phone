@@ -9,6 +9,7 @@ import {
   formatCallDuration,
   getCallDuration,
   getCallStatus,
+  getUnsuccessfulDialSummary,
   parseTranscript,
   type CallRecord,
 } from "@/lib/calls";
@@ -96,6 +97,7 @@ export function CallDetail({
 }) {
   const status = getCallStatus(call);
   const duration = getCallDuration(call);
+  const unsuccessfulDialSummary = getUnsuccessfulDialSummary(call.status);
 
   return (
     <div className="flex flex-col gap-8">
@@ -117,6 +119,11 @@ export function CallDetail({
             </p>
             <Badge variant={status.variant}>{status.label}</Badge>
           </div>
+          {unsuccessfulDialSummary ? (
+            <p className="text-sm leading-5 text-secondary-text">
+              {unsuccessfulDialSummary}
+            </p>
+          ) : null}
         </div>
         <dl className="flex flex-col gap-3">
           <CallMetaItem

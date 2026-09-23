@@ -34,6 +34,25 @@ const ACTIVE_CALL_STATUSES = new Set([
   "queued",
   "ringing",
 ]);
+
+/** Plain-language detail copy when the outbound dial did not connect. */
+export function getUnsuccessfulDialSummary(
+  status: string | null | undefined,
+): string | null {
+  switch (status) {
+    case "no-answer":
+      return "The contact did not answer. You can call Bat Phone again anytime.";
+    case "busy":
+      return "The contact was busy. You can call Bat Phone again anytime.";
+    case "canceled":
+      return "The call was canceled before it connected.";
+    case "failed":
+      return "The call could not be completed. You can call Bat Phone again anytime.";
+    default:
+      return null;
+  }
+}
+
 export function getCallStatus(
   call: Pick<CallRecord, "status" | "transcript" | "transcription_status">,
 ): CallStatus {
