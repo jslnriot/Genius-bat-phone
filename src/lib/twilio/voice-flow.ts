@@ -79,7 +79,7 @@ export async function incomingCallTwiml(
   const contacts = await repository.listContacts(profile.id);
   if (contacts.length === 0) {
     return finishWithMessage(
-      "You do not have any contacts configured. Goodbye.",
+      "You do not have any contacts configured. Please add a contact within the app and try again. Goodbye.",
     );
   }
 
@@ -141,7 +141,7 @@ export async function resolveContactTwiml(
   const contacts = await repository.listContacts(profile.id);
   if (contacts.length === 0) {
     return finishWithMessage(
-      "You do not have any contacts configured. Goodbye.",
+      "You do not have any contacts configured. Please add a contact within the app and try again. Goodbye.",
     );
   }
 
