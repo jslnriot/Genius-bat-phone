@@ -72,7 +72,7 @@ export async function incomingCallTwiml(
   if (!profile) {
     logTwilioEvent("info", "twilio.unknown_caller_rejected");
     return finishWithMessage(
-      "This phone number is not registered with Bat Phone.",
+      "This phone number is not registered with Bat Phone. If you are a new user, please register with the app first.",
     );
   }
 
@@ -134,7 +134,7 @@ export async function resolveContactTwiml(
       callSid: input.callSid,
     });
     return finishWithMessage(
-      "This phone number is not registered with Bat Phone.",
+      "This phone number is not registered with Bat Phone. If you are a new user, please register with the app first.",
     );
   }
 
