@@ -71,16 +71,19 @@ export default async function AccountPage({
           </div>
         ) : null}
 
-        <section className="flex flex-col pt-2">
+        <section className="flex flex-col pt-1">
           <h1 className="text-[28px] leading-[34px] font-bold text-primary">
             Make a call. We’ll handle the rest.
           </h1>
-          <p className="mt-4 text-base leading-6 text-secondary-text">
+          <p className="mt-3 text-base leading-6 text-secondary-text">
             Call one number, say who you want to reach, and Bat Phone connects
             the call. Recording, transcription, and call history happen
             automatically.
           </p>
-          <div className="mt-6">
+          <div className="mt-5 flex flex-col gap-2">
+            <p className="text-sm leading-5 text-secondary-text">
+              Sign in or create your account with Google.
+            </p>
             <AuthButton mode="sign-in" returnTo={returnTo} />
           </div>
         </section>

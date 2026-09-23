@@ -110,6 +110,9 @@ describe("AccountPage", () => {
       screen.getByText(/Call one number, say who you want to reach/),
     ).toBeInTheDocument();
     expect(
+      screen.getByText("Sign in or create your account with Google."),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("button", { name: "Continue with Google" }),
     ).toBeInTheDocument();
     expect(

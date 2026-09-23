@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ContactManager,
@@ -38,7 +39,14 @@ export default async function ContactsPage() {
         </p>
         {!error && hasContacts ? (
           <p className="text-sm text-[var(--color-secondary-text)]">
-            Ready to make a call? Open Calls.
+            Ready to make a call?{" "}
+            <Link
+              href="/calls"
+              className="font-medium text-action underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+            >
+              Open Calls
+            </Link>
+            .
           </p>
         ) : null}
       </header>

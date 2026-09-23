@@ -97,7 +97,7 @@ describe("ContactsPage", () => {
       screen.queryByRole("heading", { name: "Ready to make a call?" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Ready to make a call? Open Calls."),
+      screen.queryByRole("link", { name: "Open Calls" }),
     ).not.toBeInTheDocument();
   });
 
@@ -123,8 +123,9 @@ describe("ContactsPage", () => {
     expect(
       screen.getByRole("button", { name: "Add contact" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Ready to make a call? Open Calls."),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Calls" })).toHaveAttribute(
+      "href",
+      "/calls",
+    );
   });
 });
